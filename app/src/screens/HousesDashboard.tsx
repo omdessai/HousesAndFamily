@@ -15,7 +15,7 @@ const initialHouses: House[] = [
         id: '1',
         name: 'My Sweet Home',
         address: '123 Maple Street, Springfield',
-        isFavorite: true,
+        isFavorite: false,
     },
     {
         id: '2',
@@ -55,22 +55,6 @@ const HousesDashboard = () => {
     };
 
     const handleToggleFavorite = (id: string) => {
-        setHouses((prev) =>
-            prev.map((h) => {
-                if (h.id === id) {
-                    return { ...h, isFavorite: !h.isFavorite };
-                }
-                // If we are setting the clicked house to favorite, unset others
-                // If we are unsetting the clicked house, others remain as is (false)
-                // However, the logic "Only one... can be marked" implies if I mark A, B becomes unmarked.
-                // If I unmark A, no one is marked.
-                // To implement this: if h.id === id becomes true, all others must be false.
-                // But we don't know the *new* state of h.id yet in this map without checking current state.
-                return h;
-            })
-        );
-
-        // Better approach:
         setHouses((prev) => {
             const house = prev.find((h) => h.id === id);
             if (!house) return prev;
