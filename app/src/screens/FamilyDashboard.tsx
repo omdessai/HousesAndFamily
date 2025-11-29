@@ -10,6 +10,7 @@ import { mockStore } from '../data/mockStore';
 
 type RootStackParamList = {
     FamilyDashboard: undefined;
+    AddPerson: { person?: Person };
 };
 
 type Props = StackScreenProps<RootStackParamList, 'FamilyDashboard'>;
@@ -66,7 +67,7 @@ const FamilyDashboard = ({ navigation }: Props) => {
     };
 
     const handleEdit = (person: Person) => {
-        Alert.alert('Edit', `Edit functionality for ${person.name} coming soon!`);
+        navigation.navigate('AddPerson', { person });
     };
 
     const onSwipeableOpen = (id: string) => {
@@ -100,7 +101,7 @@ const FamilyDashboard = ({ navigation }: Props) => {
             isFavorite={item.isFavorite}
             onDelete={() => handleDelete(item.id)}
             onToggleFavorite={() => handleToggleFavorite(item)}
-            onEdit={() => handleEdit(item)}
+            onPress={() => handleEdit(item)}
             onSwipeableOpen={() => onSwipeableOpen(item.id)}
         />
     );

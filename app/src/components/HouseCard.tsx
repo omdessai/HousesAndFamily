@@ -11,7 +11,7 @@ interface HouseCardProps {
     isFavorite: boolean;
     onDelete: () => void;
     onToggleFavorite: () => void;
-    onEdit: () => void;
+    onPress: () => void;
     onSwipeableOpen?: () => void;
 }
 
@@ -24,7 +24,7 @@ const HouseCard = forwardRef<SwipeableItemRef, HouseCardProps>(
             isFavorite,
             onDelete,
             onToggleFavorite,
-            onEdit,
+            onPress,
             onSwipeableOpen,
         },
         ref
@@ -38,7 +38,7 @@ const HouseCard = forwardRef<SwipeableItemRef, HouseCardProps>(
                 onSwipeableOpen={onSwipeableOpen}
             >
                 <Card style={[styles.card, { backgroundColor: '#F8F9FF' }]} testID={`house-card-${id}`}>
-                    <TouchableOpacity onPress={onEdit} activeOpacity={0.7}>
+                    <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
                         <Card.Content style={styles.content}>
                             <View style={styles.leftContent}>
                                 <Icon
@@ -80,13 +80,6 @@ const HouseCard = forwardRef<SwipeableItemRef, HouseCardProps>(
                                     size={24}
                                     onPress={onToggleFavorite}
                                     testID={`favorite-button-${id}`}
-                                />
-                                <IconButton
-                                    icon="home-edit-outline"
-                                    iconColor={theme.colors.onSurfaceVariant}
-                                    size={24}
-                                    onPress={onEdit}
-                                    testID={`edit-button-${id}`}
                                 />
                             </View>
                         </Card.Content>

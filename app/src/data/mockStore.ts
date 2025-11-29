@@ -123,6 +123,27 @@ export const mockStore = {
         people.push(person);
         return Promise.resolve(person);
     },
+    updatePerson: (id: string, updates: Partial<Person>) => {
+        const index = people.findIndex(p => p.id === id);
+        if (index !== -1) {
+            people[index] = { ...people[index], ...updates };
+            return Promise.resolve(people[index]);
+        }
+        return Promise.reject(new Error('Person not found'));
+    },
+
+    addInventoryItem: (item: InventoryItem) => {
+        inventory.push(item);
+        return Promise.resolve(item);
+    },
+    updateInventoryItem: (id: string, updates: Partial<InventoryItem>) => {
+        const index = inventory.findIndex(i => i.id === id);
+        if (index !== -1) {
+            inventory[index] = { ...inventory[index], ...updates };
+            return Promise.resolve(inventory[index]);
+        }
+        return Promise.reject(new Error('Item not found'));
+    },
 
     getHouseInventory: (houseId: string) =>
         Promise.resolve(inventory.filter(item => item.houseId === houseId)),
@@ -134,5 +155,13 @@ export const mockStore = {
     addChore: (chore: Chore) => {
         chores.push(chore);
         return Promise.resolve(chore);
+    },
+    updateChore: (id: string, updates: Partial<Chore>) => {
+        const index = chores.findIndex(c => c.id === id);
+        if (index !== -1) {
+            chores[index] = { ...chores[index], ...updates };
+            return Promise.resolve(chores[index]);
+        }
+        return Promise.reject(new Error('Chore not found'));
     },
 };

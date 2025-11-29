@@ -101,7 +101,7 @@ const HousesDashboard = ({ navigation }: Props) => {
             isFavorite={item.isFavorite}
             onDelete={() => handleDelete(item.id)}
             onToggleFavorite={() => handleToggleFavorite(item)}
-            onEdit={() => handleEdit(item)}
+            onPress={() => handleEdit(item)}
             onSwipeableOpen={() => onSwipeableOpen(item.id)}
         />
     );

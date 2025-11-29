@@ -6,9 +6,10 @@ import type { Chore } from '../types/chore';
 interface ChoreListProps {
     data: Chore[];
     onAddChore: () => void;
+    onChorePress: (chore: Chore) => void;
 }
 
-const ChoreList = ({ data, onAddChore }: ChoreListProps) => {
+const ChoreList = ({ data, onAddChore, onChorePress }: ChoreListProps) => {
     const theme = useTheme();
 
     const getPriorityColor = (priority: string) => {
@@ -21,7 +22,7 @@ const ChoreList = ({ data, onAddChore }: ChoreListProps) => {
     };
 
     const renderItem = ({ item }: { item: Chore }) => (
-        <Card style={styles.card} onPress={() => Alert.alert('Chore Details', `Details for ${item.title}`)}>
+        <Card style={styles.card} onPress={() => onChorePress(item)}>
             <Card.Title
                 title={item.title}
                 subtitle={`Due: ${item.dueDate} • ${item.frequency}`}

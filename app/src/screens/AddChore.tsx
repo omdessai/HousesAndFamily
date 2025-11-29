@@ -2,27 +2,28 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, ScrollView, Alert } from 'react-native';
 import { TextInput, Button, Text, useTheme, SegmentedButtons } from 'react-native-paper';
 import type { StackScreenProps } from '@react-navigation/stack';
-import type { ChoreFrequency, ChorePriority } from '../types/chore';
+import type { ChoreFrequency, ChorePriority, Chore } from '../types/chore';
 import type { Person } from '../types/person';
 import { mockStore } from '../data/mockStore';
 
 type RootStackParamList = {
     HouseDetails: { houseId: string };
-    AddChore: { houseId: string };
+    AddChore: { houseId: string; chore?: Chore };
 };
 
 type Props = StackScreenProps<RootStackParamList, 'AddChore'>;
 
 const AddChore = ({ navigation, route }: Props) => {
-    const { houseId } = route.params;
+    const { houseId, chore } = route.params;
     const theme = useTheme();
 
-    const [title, setTitle] = useState('');
-    const [description, setDescription] = useState('');
-    const [dueDate, setDueDate] = useState(new Date().toISOString().split('T')[0]);
-    const [frequency, setFrequency] = useState<ChoreFrequency>('Once');
-    const [priority, setPriority] = useState<ChorePriority>('Medium');
-    const [assignedToId, setAssignedToId] = useState<string | undefined>(undefined);
+    const [title, setTitle] = useState(chore?.title || '');
+    const [description, setDescription] = useState(chore?.description || '');
+    const [dueDate, setDueDate] = useState(chore?.dueDate ? new Date(chore.dueDate) : new Date());
+    const [frequency, setFrequency] = useState<ChoreFrequency>(chore?.frequency || 'Weekly');
+    const [priority, setPriority] = useState<ChorePriority>(chore?.priority || 'Medium');
+    const [assignedToId, setAssignedToId] = useState<string | undefined>(chore?.assignedToId);
+    const [showDatePicker, setShowDatePicker] = useState(false);
 
     const [people, setPeople] = useState<Person[]>([]);
 
@@ -41,26 +42,39 @@ const AddChore = ({ navigation, route }: Props) => {
         }
 
         try {
-            await mockStore.addChore({
-                id: Date.now().toString(),
-                houseId,
-                title: title.trim(),
-                description: description.trim(),
-                dueDate,
-                frequency,
-                priority,
-                status: 'Pending',
-                assignedToId,
-            });
+            if (chore) {
+                await mockStore.updateChore(chore.id, {
+                    title: title.trim(),
+                    description: description.trim(),
+                    frequency,
+                    priority,
+                    assignedToId: assignedToId || undefined,
+                    dueDate: dueDate.toISOString(),
+                });
+            } else {
+                await mockStore.addChore({
+                    id: Date.now().toString(),
+                    houseId,
+                    title: title.trim(),
+                    description: description.trim(),
+                    frequency,
+                    priority,
+                    status: 'Pending',
+                    assignedToId: assignedToId || undefined,
+                    dueDate: dueDate.toISOString(),
+                });
+            }
             navigation.goBack();
         } catch (error) {
-            Alert.alert('Error', 'Failed to add chore');
+            Alert.alert('Error', 'Failed to save chore');
         }
     };
 
     return (
         <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-            <Text variant="headlineSmall" style={styles.title}>Add New Chore</Text>
+            <Text variant="headlineSmall" style={styles.title}>
+                {chore ? 'Edit Chore' : 'Add New Chore'}
+            </Text>
 
             <TextInput
                 label="Title"
@@ -145,7 +159,7 @@ const AddChore = ({ navigation, route }: Props) => {
                     onPress={handleSave}
                     style={styles.button}
                 >
-                    Save Chore
+                    {chore ? 'Save Changes' : 'Save Chore'}
                 </Button>
             </View>
         </ScrollView>

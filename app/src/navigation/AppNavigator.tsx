@@ -38,12 +38,16 @@ const HousesStackNavigator = () => {
             <HousesStack.Screen
                 name="AddItem"
                 component={AddItem}
-                options={{ title: 'Add Item' }}
+                options={({ route }: any) => ({
+                    title: route.params?.item ? 'Edit Item' : 'Add Item'
+                })}
             />
             <HousesStack.Screen
                 name="AddChore"
                 component={AddChore}
-                options={{ title: 'Add Chore' }}
+                options={({ route }: any) => ({
+                    title: route.params?.chore ? 'Edit Chore' : 'Add Chore'
+                })}
             />
         </HousesStack.Navigator>
     );
@@ -60,7 +64,9 @@ const FamilyStackNavigator = () => {
             <FamilyStack.Screen
                 name="AddPerson"
                 component={AddPerson}
-                options={{ title: 'Add Person' }}
+                options={({ route }: any) => ({
+                    title: route.params?.person ? 'Edit Person' : 'Add Person'
+                })}
             />
         </FamilyStack.Navigator>
     );

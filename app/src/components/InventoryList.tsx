@@ -6,11 +6,12 @@ import type { InventoryItem } from '../types/inventory';
 interface InventoryListProps {
     data: InventoryItem[];
     onAddItem: () => void;
+    onItemPress: (item: InventoryItem) => void;
 }
 
-const InventoryList = ({ data, onAddItem }: InventoryListProps) => {
+const InventoryList = ({ data, onAddItem, onItemPress }: InventoryListProps) => {
     const renderItem = ({ item }: { item: InventoryItem }) => (
-        <Card style={styles.card} onPress={() => Alert.alert('Item Details', `Details for ${item.name}`)}>
+        <Card style={styles.card} onPress={() => onItemPress(item)}>
             <Card.Title
                 title={item.name}
                 subtitle={`${item.category} • ${item.brand || 'Unknown Brand'}`}

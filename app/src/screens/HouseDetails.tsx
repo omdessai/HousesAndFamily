@@ -11,7 +11,8 @@ import ChoreList from '../components/ChoreList';
 
 type RootStackParamList = {
     HouseDetails: { house: House };
-    AddItem: { houseId: string };
+    AddItem: { houseId: string; item?: InventoryItem };
+    AddChore: { houseId: string; chore?: Chore };
     AddHouse: { house: House };
 };
 
@@ -44,8 +45,16 @@ const HouseDetails = ({ navigation, route }: Props) => {
         navigation.navigate('AddItem', { houseId: house.id });
     };
 
+    const handleItemPress = (item: InventoryItem) => {
+        navigation.navigate('AddItem', { houseId: house.id, item });
+    };
+
     const handleAddChore = () => {
         navigation.navigate('AddChore', { houseId: house.id });
+    };
+
+    const handleChorePress = (chore: Chore) => {
+        navigation.navigate('AddChore', { houseId: house.id, chore });
     };
 
     return (
@@ -75,9 +84,17 @@ const HouseDetails = ({ navigation, route }: Props) => {
 
             <View style={styles.content}>
                 {tab === 'inventory' ? (
-                    <InventoryList data={inventory} onAddItem={handleAddItem} />
+                    <InventoryList
+                        data={inventory}
+                        onAddItem={handleAddItem}
+                        onItemPress={handleItemPress}
+                    />
                 ) : (
-                    <ChoreList data={chores} onAddChore={handleAddChore} />
+                    <ChoreList
+                        data={chores}
+                        onAddChore={handleAddChore}
+                        onChorePress={handleChorePress}
+                    />
                 )}
             </View>
         </View>

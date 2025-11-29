@@ -11,7 +11,7 @@ interface PersonCardProps {
     isFavorite: boolean;
     onDelete: () => void;
     onToggleFavorite: () => void;
-    onEdit: () => void;
+    onPress: () => void;
     onSwipeableOpen?: () => void;
 }
 
@@ -24,7 +24,7 @@ const PersonCard = forwardRef<SwipeableItemRef, PersonCardProps>(
             isFavorite,
             onDelete,
             onToggleFavorite,
-            onEdit,
+            onPress,
             onSwipeableOpen,
         },
         ref
@@ -38,7 +38,7 @@ const PersonCard = forwardRef<SwipeableItemRef, PersonCardProps>(
                 onSwipeableOpen={onSwipeableOpen}
             >
                 <Card style={[styles.card, { backgroundColor: '#F8F9FF' }]} testID={`person-card-${id}`}>
-                    <TouchableOpacity onPress={onEdit} activeOpacity={0.7}>
+                    <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
                         <Card.Content style={styles.content}>
                             <View style={styles.leftContent}>
                                 <Icon
@@ -80,13 +80,6 @@ const PersonCard = forwardRef<SwipeableItemRef, PersonCardProps>(
                                     size={24}
                                     onPress={onToggleFavorite}
                                     testID={`person-favorite-button-${id}`}
-                                />
-                                <IconButton
-                                    icon="pencil-outline"
-                                    iconColor={theme.colors.onSurfaceVariant}
-                                    size={24}
-                                    onPress={onEdit}
-                                    testID={`person-edit-button-${id}`}
                                 />
                             </View>
                         </Card.Content>

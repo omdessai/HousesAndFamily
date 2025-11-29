@@ -4,18 +4,21 @@ import { TextInput, Button, Text, useTheme } from 'react-native-paper';
 import type { StackScreenProps } from '@react-navigation/stack';
 import { mockStore } from '../data/mockStore';
 
+import type { Person } from '../types/person';
+
 type RootStackParamList = {
     FamilyDashboard: undefined;
-    AddPerson: undefined;
+    AddPerson: { person?: Person };
 };
 
 type Props = StackScreenProps<RootStackParamList, 'AddPerson'>;
 
-const AddPerson = ({ navigation }: Props) => {
+const AddPerson = ({ navigation, route }: Props) => {
     const theme = useTheme();
+    const { person } = route.params || {};
 
-    const [name, setName] = useState('');
-    const [relation, setRelation] = useState('');
+    const [name, setName] = useState(person?.name || '');
+    const [relation, setRelation] = useState(person?.relation || '');
 
     const handleSave = async () => {
         if (!name.trim()) {
@@ -28,21 +31,30 @@ const AddPerson = ({ navigation }: Props) => {
         }
 
         try {
-            await mockStore.addPerson({
-                id: Date.now().toString(),
-                name: name.trim(),
-                relation: relation.trim(),
-                isFavorite: false,
-            });
+            if (person) {
+                await mockStore.updatePerson(person.id, {
+                    name: name.trim(),
+                    relation: relation.trim(),
+                });
+            } else {
+                await mockStore.addPerson({
+                    id: Date.now().toString(),
+                    name: name.trim(),
+                    relation: relation.trim(),
+                    isFavorite: false,
+                });
+            }
             navigation.goBack();
         } catch (error) {
-            Alert.alert('Error', 'Failed to add person');
+            Alert.alert('Error', 'Failed to save person');
         }
     };
 
     return (
         <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-            <Text variant="headlineSmall" style={styles.title}>Add Family Member</Text>
+            <Text variant="headlineSmall" style={styles.title}>
+                {person ? 'Edit Family Member' : 'Add Family Member'}
+            </Text>
 
             <TextInput
                 label="Name"

@@ -4,22 +4,25 @@ import { TextInput, Button, Text, useTheme, SegmentedButtons } from 'react-nativ
 import type { StackScreenProps } from '@react-navigation/stack';
 import type { ItemCategory } from '../types/inventory';
 
+import { mockStore } from '../data/mockStore';
+import type { InventoryItem } from '../types/inventory';
+
 type RootStackParamList = {
     HouseDetails: { houseId: string };
-    AddItem: { houseId: string };
+    AddItem: { houseId: string; item?: InventoryItem };
 };
 
 type Props = StackScreenProps<RootStackParamList, 'AddItem'>;
 
 const AddItem = ({ navigation, route }: Props) => {
-    const { houseId } = route.params;
+    const { houseId, item } = route.params;
     const theme = useTheme();
 
-    const [name, setName] = useState('');
-    const [category, setCategory] = useState<ItemCategory>('Appliance');
-    const [brand, setBrand] = useState('');
-    const [model, setModel] = useState('');
-    const [serial, setSerial] = useState('');
+    const [name, setName] = useState(item?.name || '');
+    const [category, setCategory] = useState<ItemCategory>(item?.category || 'Appliance');
+    const [brand, setBrand] = useState(item?.brand || '');
+    const [model, setModel] = useState(item?.model || '');
+    const [serial, setSerial] = useState(item?.serialNumber || '');
 
     const handleScanBarcode = () => {
         Alert.alert(
@@ -40,16 +43,37 @@ const AddItem = ({ navigation, route }: Props) => {
         );
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!name.trim()) {
             Alert.alert('Error', 'Please enter an item name');
             return;
         }
 
-        // In a real app, we would save to the backend/store here
-        Alert.alert('Success', 'Item added to inventory!', [
-            { text: 'OK', onPress: () => navigation.goBack() }
-        ]);
+        try {
+            if (item) {
+                await mockStore.updateInventoryItem(item.id, {
+                    name: name.trim(),
+                    category,
+                    brand: brand.trim(),
+                    model: model.trim(),
+                    serialNumber: serial.trim(),
+                });
+            } else {
+                await mockStore.addInventoryItem({
+                    id: Date.now().toString(),
+                    houseId,
+                    name: name.trim(),
+                    category,
+                    brand: brand.trim(),
+                    model: model.trim(),
+                    serialNumber: serial.trim(),
+                    purchaseDate: new Date().toISOString(),
+                });
+            }
+            navigation.goBack();
+        } catch (error) {
+            Alert.alert('Error', 'Failed to save item');
+        }
     };
 
     return (
@@ -69,7 +93,9 @@ const AddItem = ({ navigation, route }: Props) => {
                 </Text>
             </View>
 
-            <Text variant="titleMedium" style={styles.sectionTitle}>Item Details</Text>
+            <Text variant="titleMedium" style={styles.sectionTitle}>
+                {item ? 'Edit Item Details' : 'Item Details'}
+            </Text>
 
             <TextInput
                 label="Item Name"
@@ -134,7 +160,7 @@ const AddItem = ({ navigation, route }: Props) => {
                     onPress={handleSave}
                     style={styles.button}
                 >
-                    Save Item
+                    {item ? 'Save Changes' : 'Add Item'}
                 </Button>
             </View>
         </ScrollView>
