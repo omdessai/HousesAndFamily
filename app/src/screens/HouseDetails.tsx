@@ -1,29 +1,13 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, FlatList, Alert } from 'react-native';
-import { Text, FAB, Card, useTheme, IconButton } from 'react-native-paper';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, Alert } from 'react-native';
+import { Text, IconButton, useTheme, SegmentedButtons } from 'react-native-paper';
 import type { StackScreenProps } from '@react-navigation/stack';
 import type { House } from '../types/house';
 import type { InventoryItem } from '../types/inventory';
-
-// Dummy inventory data
-const initialInventory: InventoryItem[] = [
-    {
-        id: '1',
-        houseId: '1',
-        name: 'Refrigerator',
-        category: 'Appliance',
-        brand: 'LG',
-        modelNumber: 'LFXS26973S',
-    },
-    {
-        id: '2',
-        houseId: '1',
-        name: 'Water Heater',
-        category: 'Plumbing',
-        brand: 'Rheem',
-        purchaseDate: '2023-01-15',
-    },
-];
+import type { Chore } from '../types/chore';
+import { mockStore } from '../data/mockStore';
+import InventoryList from '../components/InventoryList';
+import ChoreList from '../components/ChoreList';
 
 type RootStackParamList = {
     HouseDetails: { house: House };
@@ -36,23 +20,33 @@ type Props = StackScreenProps<RootStackParamList, 'HouseDetails'>;
 const HouseDetails = ({ navigation, route }: Props) => {
     const { house } = route.params;
     const theme = useTheme();
-    const [inventory, setInventory] = useState<InventoryItem[]>(
-        initialInventory.filter(item => item.houseId === house.id)
-    );
+    const [tab, setTab] = useState<'inventory' | 'chores'>('inventory');
+
+    const [inventory, setInventory] = useState<InventoryItem[]>([]);
+    const [chores, setChores] = useState<Chore[]>([]);
+
+    useEffect(() => {
+        const loadData = async () => {
+            const inventoryData = await mockStore.getHouseInventory(house.id);
+            setInventory(inventoryData);
+
+            const choresData = await mockStore.getHouseChores(house.id);
+            setChores(choresData);
+        };
+        loadData();
+    }, [house.id]);
 
     const handleEditHouse = () => {
         navigation.navigate('AddHouse', { house });
     };
 
-    const renderItem = ({ item }: { item: InventoryItem }) => (
-        <Card style={styles.card} onPress={() => Alert.alert('Item Details', `Details for ${item.name}`)}>
-            <Card.Title
-                title={item.name}
-                subtitle={`${item.category} • ${item.brand || 'Unknown Brand'}`}
-                left={(props) => <IconButton {...props} icon="package-variant" />}
-            />
-        </Card>
-    );
+    const handleAddItem = () => {
+        navigation.navigate('AddItem', { houseId: house.id });
+    };
+
+    const handleAddChore = () => {
+        Alert.alert('Add Chore', 'Add chore functionality coming soon!');
+    };
 
     return (
         <View style={styles.container}>
@@ -68,28 +62,24 @@ const HouseDetails = ({ navigation, route }: Props) => {
                 />
             </View>
 
-            <View style={styles.sectionHeader}>
-                <Text variant="titleLarge">Inventory</Text>
+            <View style={styles.tabContainer}>
+                <SegmentedButtons
+                    value={tab}
+                    onValueChange={(value) => setTab(value as 'inventory' | 'chores')}
+                    buttons={[
+                        { value: 'inventory', label: 'Inventory', icon: 'package-variant' },
+                        { value: 'chores', label: 'Chores', icon: 'checkbox-marked-circle-outline' },
+                    ]}
+                />
             </View>
 
-            <FlatList
-                data={inventory}
-                renderItem={renderItem}
-                keyExtractor={(item) => item.id}
-                contentContainerStyle={styles.listContent}
-                ListEmptyComponent={
-                    <View style={styles.emptyState}>
-                        <Text variant="bodyLarge" style={styles.emptyText}>No items yet. Add one!</Text>
-                    </View>
-                }
-            />
-
-            <FAB
-                icon="barcode-scan"
-                label="Add Item"
-                style={styles.fab}
-                onPress={() => navigation.navigate('AddItem', { houseId: house.id })}
-            />
+            <View style={styles.content}>
+                {tab === 'inventory' ? (
+                    <InventoryList data={inventory} onAddItem={handleAddItem} />
+                ) : (
+                    <ChoreList data={chores} onAddChore={handleAddChore} />
+                )}
+            </View>
         </View>
     );
 };
@@ -114,30 +104,12 @@ const styles = StyleSheet.create({
         color: 'gray',
         marginTop: 4,
     },
-    sectionHeader: {
-        paddingHorizontal: 20,
-        paddingTop: 20,
-        paddingBottom: 10,
-    },
-    listContent: {
+    tabContainer: {
         padding: 16,
+        backgroundColor: '#f0f0f0',
     },
-    card: {
-        marginBottom: 12,
-        backgroundColor: 'white',
-    },
-    fab: {
-        position: 'absolute',
-        margin: 16,
-        right: 0,
-        bottom: 0,
-    },
-    emptyState: {
-        padding: 40,
-        alignItems: 'center',
-    },
-    emptyText: {
-        color: 'gray',
+    content: {
+        flex: 1,
     },
 });
 

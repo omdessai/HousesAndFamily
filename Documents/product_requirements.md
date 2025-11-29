@@ -8,6 +8,13 @@ Homeowners often struggle with managing the lifecycle of their home's assets. Cr
 
 **Value Proposition**: A centralized, digital "Home Manual" that simplifies asset management, ensures timely maintenance, and preserves home value.
 
+## Business Value: Chores & Task Management
+Integrating chores adds a layer of **operational efficiency** to the static asset management.
+-   **Preventative Maintenance**: Linking chores to assets (e.g., "Clean Dryer Vent") prevents costly repairs.
+-   **Accountability**: Assigning tasks to family members fosters shared responsibility.
+-   **Habit Formation**: Recurring schedules ensure routine maintenance isn't neglected.
+-   **Flexibility**: Supports both property-specific tasks (lawn care) and general lifestyle tasks (grocery shopping).
+
 ## Feature Set: House Details & Inventory
 
 ### 1. House Details Dashboard
@@ -28,7 +35,18 @@ Focus on friction-less data entry.
 
 ### 3. Maintenance & Care
 -   **Auto-Schedules**: "Refrigerator" entry suggests "Change Water Filter every 6 months".
+### 3. Maintenance & Care
+-   **Auto-Schedules**: "Refrigerator" entry suggests "Change Water Filter every 6 months".
 -   **Log**: History of repairs and service.
+
+### 4. Chores Management
+-   **Scope**: Tasks can be linked to a House or independent.
+-   **Attributes**:
+    -   **Title/Description**: What needs to be done.
+    -   **Assignment**: Who is responsible (link to Family Member).
+    -   **Schedule**: Due date and Frequency (Daily, Weekly, Monthly).
+    -   **Priority**: Low, Medium, High.
+    -   **Status**: Pending, Completed.
 
 ## User Flow (Add Item)
 1.  User taps "Add Item" in House Details.

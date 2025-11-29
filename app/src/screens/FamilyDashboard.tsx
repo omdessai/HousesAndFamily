@@ -6,27 +6,7 @@ import PersonCard from '../components/PersonCard';
 import { SwipeableItemRef } from '../components/SwipeableItem';
 import type { Person } from '../types/person';
 
-// Dummy data for now
-const initialPeople: Person[] = [
-    {
-        id: '1',
-        name: 'John Doe',
-        relation: 'Father',
-        isFavorite: false,
-    },
-    {
-        id: '2',
-        name: 'Jane Doe',
-        relation: 'Mother',
-        isFavorite: false,
-    },
-    {
-        id: '3',
-        name: 'Baby Doe',
-        relation: 'Child',
-        isFavorite: false,
-    },
-];
+import { mockStore } from '../data/mockStore';
 
 type RootStackParamList = {
     FamilyDashboard: undefined;
@@ -35,9 +15,17 @@ type RootStackParamList = {
 type Props = StackScreenProps<RootStackParamList, 'FamilyDashboard'>;
 
 const FamilyDashboard = ({ navigation }: Props) => {
-    const [people, setPeople] = useState<Person[]>(initialPeople);
+    const [people, setPeople] = useState<Person[]>([]);
     const swipeableRefs = useRef<Map<string, SwipeableItemRef>>(new Map());
     const openSwipeableId = useRef<string | null>(null);
+
+    React.useEffect(() => {
+        const loadPeople = async () => {
+            const data = await mockStore.getPeople();
+            setPeople(data);
+        };
+        loadPeople();
+    }, []);
 
     const handleDelete = (id: string) => {
         Alert.alert(
