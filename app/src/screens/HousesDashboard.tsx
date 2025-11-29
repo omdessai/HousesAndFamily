@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { StyleSheet, FlatList, View, Alert } from 'react-native';
+import { StyleSheet, FlatList, View, Alert, TouchableWithoutFeedback } from 'react-native';
 import HouseCard from '../components/HouseCard';
 import { SwipeableItemRef } from '../components/SwipeableItem';
 
@@ -90,6 +90,14 @@ const HousesDashboard = () => {
         openSwipeableId.current = id;
     };
 
+    const closeOpenSwipe = () => {
+        if (openSwipeableId.current) {
+            const swipeable = swipeableRefs.current.get(openSwipeableId.current);
+            swipeable?.close();
+            openSwipeableId.current = null;
+        }
+    };
+
     const renderItem = ({ item }: { item: House }) => (
         <HouseCard
             ref={(ref) => {
@@ -111,14 +119,16 @@ const HousesDashboard = () => {
     );
 
     return (
-        <View style={styles.container}>
-            <FlatList
-                data={houses}
-                renderItem={renderItem}
-                keyExtractor={(item) => item.id}
-                contentContainerStyle={styles.listContent}
-            />
-        </View>
+        <TouchableWithoutFeedback onPress={closeOpenSwipe}>
+            <View style={styles.container}>
+                <FlatList
+                    data={houses}
+                    renderItem={renderItem}
+                    keyExtractor={(item) => item.id}
+                    contentContainerStyle={styles.listContent}
+                />
+            </View>
+        </TouchableWithoutFeedback>
     );
 };
 

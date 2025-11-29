@@ -44,7 +44,7 @@ const HouseCard = forwardRef<SwipeableItemRef, HouseCardProps>(
                 onDelete={onDelete}
                 onSwipeableOpen={onSwipeableOpen}
             >
-                <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
+                <Card style={[styles.card, { backgroundColor: '#F8F9FF' }]}>
                     <Card.Content style={styles.content}>
                         <View style={styles.leftContent}>
                             <Icon
@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingVertical: 16,
+        paddingVertical: 20,
     },
     leftContent: {
         flexDirection: 'row',
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
         margin: 0,
     },
     addressText: {
-        marginTop: 4,
+        marginTop: 6,
     },
     rightActions: {
         flexDirection: 'row',
