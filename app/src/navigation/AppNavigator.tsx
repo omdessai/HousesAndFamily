@@ -10,6 +10,8 @@ import FamilyDashboard from '../screens/FamilyDashboard';
 
 import HouseDetails from '../screens/HouseDetails';
 import AddItem from '../screens/AddItem';
+import AddChore from '../screens/AddChore';
+import AddPerson from '../screens/AddPerson';
 
 const Tab = createBottomTabNavigator();
 const HousesStack = createStackNavigator();
@@ -38,6 +40,11 @@ const HousesStackNavigator = () => {
                 component={AddItem}
                 options={{ title: 'Add Item' }}
             />
+            <HousesStack.Screen
+                name="AddChore"
+                component={AddChore}
+                options={{ title: 'Add Chore' }}
+            />
         </HousesStack.Navigator>
     );
 };
@@ -49,6 +56,11 @@ const FamilyStackNavigator = () => {
                 name="FamilyDashboard"
                 component={FamilyDashboard}
                 options={{ title: 'Family', headerLeft: () => null }}
+            />
+            <FamilyStack.Screen
+                name="AddPerson"
+                component={AddPerson}
+                options={{ title: 'Add Person' }}
             />
         </FamilyStack.Navigator>
     );

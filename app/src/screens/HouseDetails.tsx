@@ -45,7 +45,7 @@ const HouseDetails = ({ navigation, route }: Props) => {
     };
 
     const handleAddChore = () => {
-        Alert.alert('Add Chore', 'Add chore functionality coming soon!');
+        navigation.navigate('AddChore', { houseId: house.id });
     };
 
     return (

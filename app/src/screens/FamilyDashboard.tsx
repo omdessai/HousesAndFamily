@@ -118,7 +118,7 @@ const FamilyDashboard = ({ navigation }: Props) => {
                     icon="account-plus-outline"
                     customSize={64}
                     style={styles.fab}
-                    onPress={() => Alert.alert('Add', 'Add person functionality coming soon!')}
+                    onPress={() => navigation.navigate('AddPerson')}
                     testID="add-person-fab"
                 />
             </View>

@@ -119,6 +119,10 @@ export const mockStore = {
     },
 
     getPeople: () => Promise.resolve([...people]),
+    addPerson: (person: Person) => {
+        people.push(person);
+        return Promise.resolve(person);
+    },
 
     getHouseInventory: (houseId: string) =>
         Promise.resolve(inventory.filter(item => item.houseId === houseId)),
@@ -127,4 +131,8 @@ export const mockStore = {
         Promise.resolve(chores.filter(chore => chore.houseId === houseId)),
 
     getAllChores: () => Promise.resolve([...chores]),
+    addChore: (chore: Chore) => {
+        chores.push(chore);
+        return Promise.resolve(chore);
+    },
 };
