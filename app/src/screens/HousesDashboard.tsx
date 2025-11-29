@@ -67,7 +67,7 @@ const HousesDashboard = ({ navigation }: Props) => {
     };
 
     const handleEdit = (house: House) => {
-        navigation.navigate('AddHouse', { house });
+        navigation.navigate('HouseDetails', { house });
     };
 
     const onSwipeableOpen = (id: string) => {

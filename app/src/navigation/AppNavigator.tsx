@@ -8,6 +8,9 @@ import HousesDashboard from '../screens/HousesDashboard';
 import AddHouse from '../screens/AddHouse';
 import FamilyDashboard from '../screens/FamilyDashboard';
 
+import HouseDetails from '../screens/HouseDetails';
+import AddItem from '../screens/AddItem';
+
 const Tab = createBottomTabNavigator();
 const HousesStack = createStackNavigator();
 const FamilyStack = createStackNavigator();
@@ -21,9 +24,19 @@ const HousesStackNavigator = () => {
                 options={{ title: 'Houses', headerLeft: () => null }}
             />
             <HousesStack.Screen
+                name="HouseDetails"
+                component={HouseDetails}
+                options={{ title: 'House Details' }}
+            />
+            <HousesStack.Screen
                 name="AddHouse"
                 component={AddHouse}
                 options={{ title: 'Add House' }}
+            />
+            <HousesStack.Screen
+                name="AddItem"
+                component={AddItem}
+                options={{ title: 'Add Item' }}
             />
         </HousesStack.Navigator>
     );
