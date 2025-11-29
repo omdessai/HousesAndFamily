@@ -1,4 +1,4 @@
-describe('Houses E2E Tests', () => {
+describe('App E2E Tests', () => {
     beforeAll(async () => {
         await device.launchApp();
     });
@@ -47,24 +47,24 @@ describe('Houses E2E Tests', () => {
     });
 
     it('should edit house name', async () => {
-        // Tap the house name text to enter edit mode
-        await element(by.id('house-name-1')).tap();
+        // Tap the house card to enter edit mode (navigates to AddHouse screen)
+        await element(by.id('house-card-1')).tap();
 
-        // Wait a moment for edit mode to activate
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // Verify we are on the Edit House screen
+        await expect(element(by.text('Edit House'))).toBeVisible();
 
-        // The TextInput should now be visible - find it and edit
-        await element(by.id('house-name-1')).clearText();
-        await element(by.id('house-name-1')).typeText('Updated House');
+        // Clear and type new name
+        await element(by.id('house-name-input')).clearText();
+        await element(by.id('house-name-input')).typeText('Updated House Name');
 
-        // Tap the FAB to blur and save
-        await element(by.id('add-house-fab')).tap();
+        // Save
+        await element(by.id('save-house-button')).tap();
 
-        // Cancel the navigation
-        await element(by.text('Cancel')).tap();
+        // Verify we're back on the dashboard
+        await expect(element(by.id('add-house-fab'))).toBeVisible();
 
         // Verify the name was updated
-        await expect(element(by.text('Updated House'))).toBeVisible();
+        await expect(element(by.text('Updated House Name'))).toBeVisible();
     });
 
     it('should delete house via swipe', async () => {
@@ -127,5 +127,22 @@ describe('Houses E2E Tests', () => {
 
         // Dismiss alert
         await element(by.text('OK')).tap();
+    });
+
+    it('should navigate to family dashboard', async () => {
+        // Tap the Family tab
+        await element(by.text('Family')).tap();
+
+        // Verify Family Dashboard is visible (check for FAB)
+        await expect(element(by.id('add-person-fab'))).toBeVisible();
+    });
+
+    it('should show family members', async () => {
+        // Navigate to Family tab
+        await element(by.text('Family')).tap();
+
+        // Verify initial family members are visible
+        await expect(element(by.text('John Doe'))).toBeVisible();
+        await expect(element(by.text('Father'))).toBeVisible();
     });
 });

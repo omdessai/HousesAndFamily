@@ -6,58 +6,76 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import HousesDashboard from '../screens/HousesDashboard';
 import AddHouse from '../screens/AddHouse';
-import PlaceholderScreen from '../screens/PlaceholderScreen';
+import FamilyDashboard from '../screens/FamilyDashboard';
 
 const Tab = createBottomTabNavigator();
-const RootStack = createStackNavigator();
+const HousesStack = createStackNavigator();
+const FamilyStack = createStackNavigator();
 
-const TabNavigator = () => {
+const HousesStackNavigator = () => {
     return (
-        <Tab.Navigator
-            screenOptions={({ route }) => ({
-                tabBarIcon: ({ focused, color, size }) => {
-                    let iconName;
+        <HousesStack.Navigator>
+            <HousesStack.Screen
+                name="HousesDashboard"
+                component={HousesDashboard}
+                options={{ title: 'Houses', headerLeft: () => null }}
+            />
+            <HousesStack.Screen
+                name="AddHouse"
+                component={AddHouse}
+                options={{ title: 'Add House' }}
+            />
+        </HousesStack.Navigator>
+    );
+};
 
-                    if (route.name === 'Houses') {
-                        iconName = focused ? 'home' : 'home-outline';
-                    } else if (route.name === 'Family') {
-                        iconName = focused ? 'account-group' : 'account-group-outline';
-                    }
-
-                    return <Icon name={iconName || 'circle'} size={size} color={color} />;
-                },
-                tabBarActiveTintColor: '#6200ee',
-                tabBarInactiveTintColor: 'gray',
-                headerShown: true,
-            })}
-        >
-            <Tab.Screen name="Houses" component={PlaceholderScreen} options={{ title: 'Houses' }} />
-            <Tab.Screen name="Family" component={PlaceholderScreen} options={{ title: 'Family' }} />
-        </Tab.Navigator>
+const FamilyStackNavigator = () => {
+    return (
+        <FamilyStack.Navigator>
+            <FamilyStack.Screen
+                name="FamilyDashboard"
+                component={FamilyDashboard}
+                options={{ title: 'Family', headerLeft: () => null }}
+            />
+        </FamilyStack.Navigator>
     );
 };
 
 const AppNavigator = () => {
     return (
         <NavigationContainer>
-            <RootStack.Navigator screenOptions={{ headerShown: false }}>
-                <RootStack.Screen
-                    name="HousesDashboard"
-                    component={HousesDashboard}
-                    options={{ headerShown: true, title: 'Houses', headerLeft: () => null }}
+            <Tab.Navigator
+                screenOptions={({ route }) => ({
+                    tabBarIcon: ({ focused, color, size }) => {
+                        let iconName;
+
+                        if (route.name === 'HousesTab') {
+                            iconName = 'home-analytics';
+                        } else if (route.name === 'FamilyTab') {
+                            iconName = 'account-group';
+                        }
+
+                        return <Icon name={iconName || 'circle'} size={size} color={color} />;
+                    },
+                    tabBarActiveTintColor: '#6200ee',
+                    tabBarInactiveTintColor: 'gray',
+                    headerShown: false,
+                })}
+            >
+                <Tab.Screen
+                    name="HousesTab"
+                    component={HousesStackNavigator}
+                    options={{ title: 'Houses' }}
                 />
-                <RootStack.Screen
-                    name="AddHouse"
-                    component={AddHouse}
-                    options={{ headerShown: true, title: 'Add House' }}
+                <Tab.Screen
+                    name="FamilyTab"
+                    component={FamilyStackNavigator}
+                    options={{ title: 'Family' }}
                 />
-                <RootStack.Screen
-                    name="MainTabs"
-                    component={TabNavigator}
-                />
-            </RootStack.Navigator>
+            </Tab.Navigator>
         </NavigationContainer>
     );
 };
 
 export default AppNavigator;
+
