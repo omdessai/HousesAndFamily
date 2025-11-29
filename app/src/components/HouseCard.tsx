@@ -44,7 +44,7 @@ const HouseCard = forwardRef<SwipeableItemRef, HouseCardProps>(
                 onDelete={onDelete}
                 onSwipeableOpen={onSwipeableOpen}
             >
-                <Card style={[styles.card, { backgroundColor: '#F8F9FF' }]}>
+                <Card style={[styles.card, { backgroundColor: '#F8F9FF' }]} testID={`house-card-${id}`}>
                     <Card.Content style={styles.content}>
                         <View style={styles.leftContent}>
                             <Icon
@@ -79,6 +79,7 @@ const HouseCard = forwardRef<SwipeableItemRef, HouseCardProps>(
                                             ]}
                                             numberOfLines={1}
                                             ellipsizeMode="tail"
+                                            testID={`house-name-${id}`}
                                         >
                                             {name}
                                         </Text>
@@ -101,12 +102,14 @@ const HouseCard = forwardRef<SwipeableItemRef, HouseCardProps>(
                                 iconColor={isFavorite ? theme.colors.error : theme.colors.onSurfaceVariant}
                                 size={24}
                                 onPress={onToggleFavorite}
+                                testID={`favorite-button-${id}`}
                             />
                             <IconButton
                                 icon="home-edit-outline"
                                 iconColor={theme.colors.onSurfaceVariant}
                                 size={24}
                                 onPress={() => setIsEditing(true)}
+                                testID={`edit-button-${id}`}
                             />
                         </View>
                     </Card.Content>

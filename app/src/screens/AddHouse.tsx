@@ -68,6 +68,7 @@ const AddHouse = ({ navigation }: Props) => {
                 mode="outlined"
                 style={styles.input}
                 placeholder="e.g., My Sweet Home"
+                testID="house-name-input"
             />
 
             <TextInput
@@ -79,6 +80,7 @@ const AddHouse = ({ navigation }: Props) => {
                 placeholder="e.g., 123 Main St, City"
                 multiline
                 numberOfLines={3}
+                testID="house-address-input"
             />
 
             <Button
@@ -104,6 +106,7 @@ const AddHouse = ({ navigation }: Props) => {
                     mode="contained"
                     onPress={handleSave}
                     style={styles.button}
+                    testID="save-house-button"
                 >
                     Save
                 </Button>

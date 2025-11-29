@@ -146,6 +146,7 @@ const HousesDashboard = ({ navigation, route }: Props) => {
                     icon="home-plus"
                     style={styles.fab}
                     onPress={() => navigation.navigate('AddHouse')}
+                    testID="add-house-fab"
                 />
             </View>
         </TouchableWithoutFeedback>
