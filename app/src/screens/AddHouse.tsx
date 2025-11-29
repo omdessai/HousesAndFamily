@@ -1,29 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Alert, ScrollView } from 'react-native';
-import { TextInput, Button, Text, useTheme } from 'react-native-paper';
+import { TextInput, Button, Text, useTheme, SegmentedButtons } from 'react-native-paper';
 import Geolocation from '@react-native-community/geolocation';
 import type { StackScreenProps } from '@react-navigation/stack';
+import { useAddHouse, useUpdateHouse } from '../hooks/useHouses';
+import type { House } from '../types/house';
 
 type RootStackParamList = {
-    HousesDashboard: { newHouse?: { id: string; name: string; address: string; isFavorite: boolean } };
-    AddHouse: undefined;
+    HousesDashboard: undefined;
+    AddHouse: { house?: House };
 };
 
 type Props = StackScreenProps<RootStackParamList, 'AddHouse'>;
 
-const AddHouse = ({ navigation }: Props) => {
+const AddHouse = ({ navigation, route }: Props) => {
     const theme = useTheme();
-    const [name, setName] = useState('');
-    const [address, setAddress] = useState('');
+    const editingHouse = route.params?.house;
+    const isEditMode = !!editingHouse;
+
+    const [name, setName] = useState(editingHouse?.name || '');
+    const [address, setAddress] = useState(editingHouse?.address || '');
+    const [interest, setInterest] = useState<'Own' | 'Rent' | 'Wishlist'>(editingHouse?.interest || 'Own');
+    const [residenceType, setResidenceType] = useState<'Primary' | 'Vacation' | 'Rental'>(
+        editingHouse?.residenceType || 'Primary'
+    );
     const [loading, setLoading] = useState(false);
+
+    const addHouseMutation = useAddHouse();
+    const updateHouseMutation = useUpdateHouse();
 
     const getCurrentLocation = () => {
         setLoading(true);
         Geolocation.getCurrentPosition(
             (position) => {
                 const { latitude, longitude } = position.coords;
-                // In a real app, you would use a geocoding service to convert coordinates to an address
-                // For now, we'll just show the coordinates
                 setAddress(`${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
                 setLoading(false);
             },
@@ -45,20 +55,50 @@ const AddHouse = ({ navigation }: Props) => {
             return;
         }
 
-        const newHouse = {
-            id: Date.now().toString(),
-            name: name.trim(),
-            address: address.trim(),
-            isFavorite: false,
-        };
-
-        navigation.navigate('HousesDashboard', { newHouse });
+        if (isEditMode && editingHouse) {
+            updateHouseMutation.mutate(
+                {
+                    id: editingHouse.id,
+                    input: {
+                        name: name.trim(),
+                        address: address.trim(),
+                        interest,
+                        residenceType,
+                    },
+                },
+                {
+                    onSuccess: () => {
+                        navigation.goBack();
+                    },
+                    onError: (error) => {
+                        Alert.alert('Error', 'Failed to update house: ' + error.message);
+                    },
+                }
+            );
+        } else {
+            addHouseMutation.mutate(
+                {
+                    name: name.trim(),
+                    address: address.trim(),
+                    interest,
+                    residenceType,
+                },
+                {
+                    onSuccess: () => {
+                        navigation.goBack();
+                    },
+                    onError: (error) => {
+                        Alert.alert('Error', 'Failed to add house: ' + error.message);
+                    },
+                }
+            );
+        }
     };
 
     return (
         <ScrollView style={styles.container} contentContainerStyle={styles.content}>
             <Text variant="headlineSmall" style={[styles.title, { color: theme.colors.onSurface }]}>
-                Add New House
+                {isEditMode ? 'Edit House' : 'Add New House'}
             </Text>
 
             <TextInput
@@ -94,6 +134,34 @@ const AddHouse = ({ navigation }: Props) => {
                 Use Current Location
             </Button>
 
+            <Text variant="titleSmall" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
+                Interest
+            </Text>
+            <SegmentedButtons
+                value={interest}
+                onValueChange={(value) => setInterest(value as 'Own' | 'Rent' | 'Wishlist')}
+                buttons={[
+                    { value: 'Own', label: 'Own' },
+                    { value: 'Rent', label: 'Rent' },
+                    { value: 'Wishlist', label: 'Wishlist' },
+                ]}
+                style={styles.segmentedButtons}
+            />
+
+            <Text variant="titleSmall" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
+                Residence Type
+            </Text>
+            <SegmentedButtons
+                value={residenceType}
+                onValueChange={(value) => setResidenceType(value as 'Primary' | 'Vacation' | 'Rental')}
+                buttons={[
+                    { value: 'Primary', label: 'Primary' },
+                    { value: 'Vacation', label: 'Vacation' },
+                    { value: 'Rental', label: 'Rental' },
+                ]}
+                style={styles.segmentedButtons}
+            />
+
             <View style={styles.buttonContainer}>
                 <Button
                     mode="outlined"
@@ -106,9 +174,11 @@ const AddHouse = ({ navigation }: Props) => {
                     mode="contained"
                     onPress={handleSave}
                     style={styles.button}
+                    loading={addHouseMutation.isPending || updateHouseMutation.isPending}
+                    disabled={addHouseMutation.isPending || updateHouseMutation.isPending}
                     testID="save-house-button"
                 >
-                    Save
+                    {isEditMode ? 'Update' : 'Save'}
                 </Button>
             </View>
         </ScrollView>
@@ -133,10 +203,18 @@ const styles = StyleSheet.create({
     locationButton: {
         marginBottom: 24,
     },
+    sectionTitle: {
+        marginBottom: 8,
+        fontWeight: '600',
+    },
+    segmentedButtons: {
+        marginBottom: 24,
+    },
     buttonContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         gap: 16,
+        marginTop: 8,
     },
     button: {
         flex: 1,

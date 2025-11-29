@@ -1,55 +1,26 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { StyleSheet, FlatList, View, Alert, TouchableWithoutFeedback } from 'react-native';
-import { FAB } from 'react-native-paper';
+import React, { useRef } from 'react';
+import { StyleSheet, FlatList, View, Alert, TouchableWithoutFeedback, ActivityIndicator } from 'react-native';
+import { FAB, Text } from 'react-native-paper';
 import type { StackScreenProps } from '@react-navigation/stack';
 import HouseCard from '../components/HouseCard';
 import { SwipeableItemRef } from '../components/SwipeableItem';
-
-interface House {
-    id: string;
-    name: string;
-    address: string;
-    isFavorite: boolean;
-}
-
-const initialHouses: House[] = [
-    {
-        id: '1',
-        name: 'My Sweet Home',
-        address: '123 Maple Street, Springfield',
-        isFavorite: false,
-    },
-    {
-        id: '2',
-        name: 'Vacation House',
-        address: '456 Beach Blvd, Miami',
-        isFavorite: false,
-    },
-    {
-        id: '3',
-        name: 'Rental Property',
-        address: '789 City Center, New York',
-        isFavorite: false,
-    },
-];
+import { useHouses, useDeleteHouse, useUpdateHouse } from '../hooks/useHouses';
+import type { House } from '../types/house';
 
 type RootStackParamList = {
-    HousesDashboard: { newHouse?: { id: string; name: string; address: string; isFavorite: boolean } };
-    AddHouse: undefined;
+    HousesDashboard: undefined;
+    AddHouse: { house?: House };
 };
 
 type Props = StackScreenProps<RootStackParamList, 'HousesDashboard'>;
 
-const HousesDashboard = ({ navigation, route }: Props) => {
-    const [houses, setHouses] = useState<House[]>(initialHouses);
+const HousesDashboard = ({ navigation }: Props) => {
+    const { data: houses, isLoading, error } = useHouses();
+    const deleteHouseMutation = useDeleteHouse();
+    const updateHouseMutation = useUpdateHouse();
+
     const swipeableRefs = useRef<Map<string, SwipeableItemRef>>(new Map());
     const openSwipeableId = useRef<string | null>(null);
-
-    useEffect(() => {
-        if (route.params?.newHouse) {
-            setHouses((prev) => [...prev, route.params.newHouse!]);
-        }
-    }, [route.params?.newHouse]);
 
     const handleDelete = (id: string) => {
         Alert.alert(
@@ -61,40 +32,42 @@ const HousesDashboard = ({ navigation, route }: Props) => {
                     text: 'Delete',
                     style: 'destructive',
                     onPress: () => {
-                        setHouses((prev) => prev.filter((h) => h.id !== id));
-                        swipeableRefs.current.delete(id);
+                        deleteHouseMutation.mutate(id);
                     },
                 },
             ]
         );
     };
 
-    const handleToggleFavorite = (id: string) => {
-        setHouses((prev) => {
-            const house = prev.find((h) => h.id === id);
-            if (!house) return prev;
+    const handleToggleFavorite = (house: House) => {
+        const newFavoriteStatus = !house.isFavorite;
 
-            const newFavoriteStatus = !house.isFavorite;
-
-            if (newFavoriteStatus) {
-                // If turning ON, turn off all others
-                return prev.map((h) => ({
-                    ...h,
-                    isFavorite: h.id === id,
-                }));
-            } else {
-                // If turning OFF, just turn off this one
-                return prev.map((h) =>
-                    h.id === id ? { ...h, isFavorite: false } : h
-                );
-            }
+        updateHouseMutation.mutate({
+            id: house.id,
+            input: {
+                isFavorite: newFavoriteStatus ? true : false,
+                // If setting to favorite, unfavorite all others
+                ...(newFavoriteStatus && {
+                    // This will be handled by updating all houses
+                }),
+            },
         });
+
+        // If setting this house as favorite, unfavorite all others
+        if (newFavoriteStatus && houses) {
+            houses.forEach((h) => {
+                if (h.id !== house.id && h.isFavorite) {
+                    updateHouseMutation.mutate({
+                        id: h.id,
+                        input: { isFavorite: false },
+                    });
+                }
+            });
+        }
     };
 
-    const handleUpdateName = (id: string, newName: string) => {
-        setHouses((prev) =>
-            prev.map((h) => (h.id === id ? { ...h, name: newName } : h))
-        );
+    const handleEdit = (house: House) => {
+        navigation.navigate('AddHouse', { house });
     };
 
     const onSwipeableOpen = (id: string) => {
@@ -123,21 +96,37 @@ const HousesDashboard = ({ navigation, route }: Props) => {
                 }
             }}
             id={item.id}
-            initialName={item.name}
+            name={item.name}
             address={item.address}
             isFavorite={item.isFavorite}
             onDelete={() => handleDelete(item.id)}
-            onToggleFavorite={() => handleToggleFavorite(item.id)}
-            onUpdateName={(newName) => handleUpdateName(item.id, newName)}
+            onToggleFavorite={() => handleToggleFavorite(item)}
+            onEdit={() => handleEdit(item)}
             onSwipeableOpen={() => onSwipeableOpen(item.id)}
         />
     );
+
+    if (isLoading) {
+        return (
+            <View style={styles.centerContainer}>
+                <ActivityIndicator size="large" />
+            </View>
+        );
+    }
+
+    if (error) {
+        return (
+            <View style={styles.centerContainer}>
+                <Text>Error loading houses</Text>
+            </View>
+        );
+    }
 
     return (
         <TouchableWithoutFeedback onPress={closeOpenSwipe}>
             <View style={styles.container}>
                 <FlatList
-                    data={houses}
+                    data={houses || []}
                     renderItem={renderItem}
                     keyExtractor={(item) => item.id}
                     contentContainerStyle={styles.listContent}
@@ -145,7 +134,7 @@ const HousesDashboard = ({ navigation, route }: Props) => {
                 <FAB
                     icon="home-plus"
                     style={styles.fab}
-                    onPress={() => navigation.navigate('AddHouse')}
+                    onPress={() => navigation.navigate('AddHouse', {})}
                     testID="add-house-fab"
                 />
             </View>
@@ -156,6 +145,12 @@ const HousesDashboard = ({ navigation, route }: Props) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: '#f0f0f0',
+    },
+    centerContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
         backgroundColor: '#f0f0f0',
     },
     listContent: {
