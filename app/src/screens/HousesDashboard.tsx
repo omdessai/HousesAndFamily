@@ -1,5 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { StyleSheet, FlatList, View, Alert, TouchableWithoutFeedback } from 'react-native';
+import { FAB } from 'react-native-paper';
+import type { StackScreenProps } from '@react-navigation/stack';
 import HouseCard from '../components/HouseCard';
 import { SwipeableItemRef } from '../components/SwipeableItem';
 
@@ -31,10 +33,23 @@ const initialHouses: House[] = [
     },
 ];
 
-const HousesDashboard = () => {
+type RootStackParamList = {
+    HousesDashboard: { newHouse?: { id: string; name: string; address: string; isFavorite: boolean } };
+    AddHouse: undefined;
+};
+
+type Props = StackScreenProps<RootStackParamList, 'HousesDashboard'>;
+
+const HousesDashboard = ({ navigation, route }: Props) => {
     const [houses, setHouses] = useState<House[]>(initialHouses);
     const swipeableRefs = useRef<Map<string, SwipeableItemRef>>(new Map());
     const openSwipeableId = useRef<string | null>(null);
+
+    useEffect(() => {
+        if (route.params?.newHouse) {
+            setHouses((prev) => [...prev, route.params.newHouse!]);
+        }
+    }, [route.params?.newHouse]);
 
     const handleDelete = (id: string) => {
         Alert.alert(
@@ -127,6 +142,11 @@ const HousesDashboard = () => {
                     keyExtractor={(item) => item.id}
                     contentContainerStyle={styles.listContent}
                 />
+                <FAB
+                    icon="home-plus"
+                    style={styles.fab}
+                    onPress={() => navigation.navigate('AddHouse')}
+                />
             </View>
         </TouchableWithoutFeedback>
     );
@@ -139,6 +159,12 @@ const styles = StyleSheet.create({
     },
     listContent: {
         padding: 16,
+    },
+    fab: {
+        position: 'absolute',
+        margin: 16,
+        right: 0,
+        bottom: 0,
     },
 });
 
