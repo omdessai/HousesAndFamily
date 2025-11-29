@@ -132,7 +132,8 @@ const HousesDashboard = ({ navigation }: Props) => {
                     contentContainerStyle={styles.listContent}
                 />
                 <FAB
-                    icon="home-plus"
+                    icon="home-plus-outline"
+                    customSize={64}
                     style={styles.fab}
                     onPress={() => navigation.navigate('AddHouse', {})}
                     testID="add-house-fab"
