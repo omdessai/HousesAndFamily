@@ -49,7 +49,6 @@ const HousesStackNavigator = () => {
                 component={HouseFormScreen}
                 options={({ route }) => ({
                     title: route.params?.house ? 'Edit House' : 'Add New House',
-                    presentation: 'modal',
                 })}
             />
             <Stack.Screen
@@ -57,7 +56,6 @@ const HousesStackNavigator = () => {
                 component={ItemFormScreen}
                 options={({ route }) => ({
                     title: route.params?.item ? 'Edit Item' : 'Add Item',
-                    presentation: 'modal',
                 })}
             />
             <Stack.Screen
@@ -65,7 +63,6 @@ const HousesStackNavigator = () => {
                 component={ChoreFormScreen}
                 options={({ route }) => ({
                     title: route.params?.chore ? 'Edit Chore' : 'Add Chore',
-                    presentation: 'modal',
                 })}
             />
         </Stack.Navigator>
@@ -85,7 +82,6 @@ const FamilyStackNavigator = () => {
                 component={PersonFormScreen}
                 options={({ route }) => ({
                     title: route.params?.person ? 'Edit Person' : 'Add Person',
-                    presentation: 'modal',
                 })}
             />
         </Stack.Navigator>
