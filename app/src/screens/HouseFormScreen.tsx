@@ -5,15 +5,11 @@ import Geolocation from '@react-native-community/geolocation';
 import type { StackScreenProps } from '@react-navigation/stack';
 import { useAddHouse, useUpdateHouse } from '../hooks/useHouses';
 import type { House } from '../types/house';
+import { RootStackParamList } from '../navigation/AppNavigator';
 
-type RootStackParamList = {
-    HousesDashboard: undefined;
-    AddHouse: { house?: House };
-};
+type Props = StackScreenProps<RootStackParamList, 'HouseFormScreen'>;
 
-type Props = StackScreenProps<RootStackParamList, 'AddHouse'>;
-
-const AddHouse = ({ navigation, route }: Props) => {
+const HouseFormScreen = ({ navigation, route }: Props) => {
     const theme = useTheme();
     const editingHouse = route.params?.house;
     const isEditMode = !!editingHouse;
@@ -221,4 +217,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default AddHouse;
+export default HouseFormScreen;

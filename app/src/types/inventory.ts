@@ -9,6 +9,7 @@ export interface InventoryItem {
     modelNumber?: string;
     serialNumber?: string;
     purchaseDate?: string; // ISO Date
+    purchasePrice?: number;
     warrantyExpiration?: string; // ISO Date
     notes?: string;
     photos?: string[];

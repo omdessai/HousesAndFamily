@@ -1,7 +1,8 @@
 import React from 'react';
-import { StyleSheet, FlatList, View, Alert } from 'react-native';
-import { Card, Text, IconButton, FAB } from 'react-native-paper';
+import { StyleSheet, FlatList, View } from 'react-native';
+import { FAB, Text } from 'react-native-paper';
 import type { InventoryItem } from '../types/inventory';
+import ItemCard from './ItemCard';
 
 interface InventoryListProps {
     data: InventoryItem[];
@@ -11,13 +12,7 @@ interface InventoryListProps {
 
 const InventoryList = ({ data, onAddItem, onItemPress }: InventoryListProps) => {
     const renderItem = ({ item }: { item: InventoryItem }) => (
-        <Card style={styles.card} onPress={() => onItemPress(item)}>
-            <Card.Title
-                title={item.name}
-                subtitle={`${item.category} • ${item.brand || 'Unknown Brand'}`}
-                left={(props) => <IconButton {...props} icon="package-variant" />}
-            />
-        </Card>
+        <ItemCard item={item} onPress={() => onItemPress(item)} />
     );
 
     return (

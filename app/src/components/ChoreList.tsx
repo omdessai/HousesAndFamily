@@ -1,7 +1,8 @@
 import React from 'react';
-import { StyleSheet, FlatList, View, Alert } from 'react-native';
-import { Card, Text, IconButton, FAB, Chip, useTheme } from 'react-native-paper';
+import { StyleSheet, FlatList, View } from 'react-native';
+import { FAB, Text, useTheme } from 'react-native-paper';
 import type { Chore } from '../types/chore';
+import ChoreCard from './ChoreCard';
 
 interface ChoreListProps {
     data: Chore[];
@@ -12,33 +13,8 @@ interface ChoreListProps {
 const ChoreList = ({ data, onAddChore, onChorePress }: ChoreListProps) => {
     const theme = useTheme();
 
-    const getPriorityColor = (priority: string) => {
-        switch (priority) {
-            case 'High': return theme.colors.error;
-            case 'Medium': return theme.colors.warning;
-            case 'Low': return theme.colors.primary;
-            default: return theme.colors.primary;
-        }
-    };
-
     const renderItem = ({ item }: { item: Chore }) => (
-        <Card style={styles.card} onPress={() => onChorePress(item)}>
-            <Card.Title
-                title={item.title}
-                subtitle={`Due: ${item.dueDate} • ${item.frequency}`}
-                left={(props) => <IconButton {...props} icon="checkbox-marked-circle-outline" />}
-                right={(props) => (
-                    <View style={styles.rightContainer}>
-                        <Chip
-                            textStyle={{ fontSize: 10, lineHeight: 10 }}
-                            style={[styles.priorityChip, { backgroundColor: theme.colors.surfaceVariant }]}
-                        >
-                            {item.priority}
-                        </Chip>
-                    </View>
-                )}
-            />
-        </Card>
+        <ChoreCard item={item} onPress={() => onChorePress(item)} />
     );
 
     return (

@@ -137,12 +137,43 @@ describe('App E2E Tests', () => {
         await expect(element(by.id('add-person-fab'))).toBeVisible();
     });
 
-    it('should show family members', async () => {
-        // Navigate to Family tab
-        await element(by.text('Family')).tap();
+    it('should add a new person', async () => {
+        // Tap the FAB
+        await element(by.id('add-person-fab')).tap();
 
-        // Verify initial family members are visible
-        await expect(element(by.text('John Doe'))).toBeVisible();
-        await expect(element(by.text('Father'))).toBeVisible();
+        // Verify we're on Add Person screen
+        await expect(element(by.text('Add Family Member'))).toBeVisible();
+
+        // Fill in details
+        await element(by.id('person-name-input')).typeText('Jane Doe');
+        await element(by.id('person-relation-input')).typeText('Mother');
+
+        // Save
+        await element(by.id('save-person-button')).tap();
+
+        // Verify we're back on dashboard
+        await expect(element(by.id('add-person-fab'))).toBeVisible();
+
+        // Verify the new person appears
+        await expect(element(by.text('Jane Doe'))).toBeVisible();
+        await expect(element(by.text('Mother'))).toBeVisible();
+    });
+
+    it('should edit person', async () => {
+        // Tap the person card (assuming Jane Doe is visible)
+        await element(by.text('Jane Doe')).tap();
+
+        // Verify we're on Edit Person screen
+        await expect(element(by.text('Edit Family Member'))).toBeVisible();
+
+        // Change name
+        await element(by.id('person-name-input')).clearText();
+        await element(by.id('person-name-input')).typeText('Jane Smith');
+
+        // Save
+        await element(by.id('save-person-button')).tap();
+
+        // Verify update
+        await expect(element(by.text('Jane Smith'))).toBeVisible();
     });
 });

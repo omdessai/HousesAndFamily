@@ -7,15 +7,11 @@ import { SwipeableItemRef } from '../components/SwipeableItem';
 import type { Person } from '../types/person';
 
 import { mockStore } from '../data/mockStore';
+import { RootStackParamList } from '../navigation/AppNavigator';
 
-type RootStackParamList = {
-    FamilyDashboard: undefined;
-    AddPerson: { person?: Person };
-};
+type Props = StackScreenProps<RootStackParamList, 'PersonListScreen'>;
 
-type Props = StackScreenProps<RootStackParamList, 'FamilyDashboard'>;
-
-const FamilyDashboard = ({ navigation }: Props) => {
+const PersonListScreen = ({ navigation }: Props) => {
     const [people, setPeople] = useState<Person[]>([]);
     const swipeableRefs = useRef<Map<string, SwipeableItemRef>>(new Map());
     const openSwipeableId = useRef<string | null>(null);
@@ -67,7 +63,7 @@ const FamilyDashboard = ({ navigation }: Props) => {
     };
 
     const handleEdit = (person: Person) => {
-        navigation.navigate('AddPerson', { person });
+        navigation.navigate('PersonFormScreen', { person });
     };
 
     const onSwipeableOpen = (id: string) => {
@@ -119,7 +115,7 @@ const FamilyDashboard = ({ navigation }: Props) => {
                     icon="account-plus-outline"
                     customSize={64}
                     style={styles.fab}
-                    onPress={() => navigation.navigate('AddPerson')}
+                    onPress={() => navigation.navigate('PersonFormScreen', {})}
                     testID="add-person-fab"
                 />
             </View>
@@ -143,4 +139,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default FamilyDashboard;
+export default PersonListScreen;

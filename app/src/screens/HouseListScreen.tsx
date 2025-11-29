@@ -6,15 +6,11 @@ import HouseCard from '../components/HouseCard';
 import { SwipeableItemRef } from '../components/SwipeableItem';
 import { useHouses, useDeleteHouse, useUpdateHouse } from '../hooks/useHouses';
 import type { House } from '../types/house';
+import { RootStackParamList } from '../navigation/AppNavigator';
 
-type RootStackParamList = {
-    HousesDashboard: undefined;
-    AddHouse: { house?: House };
-};
+type Props = StackScreenProps<RootStackParamList, 'HouseListScreen'>;
 
-type Props = StackScreenProps<RootStackParamList, 'HousesDashboard'>;
-
-const HousesDashboard = ({ navigation }: Props) => {
+const HouseListScreen = ({ navigation }: Props) => {
     const { data: houses, isLoading, error } = useHouses();
     const deleteHouseMutation = useDeleteHouse();
     const updateHouseMutation = useUpdateHouse();
@@ -67,7 +63,7 @@ const HousesDashboard = ({ navigation }: Props) => {
     };
 
     const handleEdit = (house: House) => {
-        navigation.navigate('HouseDetails', { house });
+        navigation.navigate('HouseDetailScreen', { house });
     };
 
     const onSwipeableOpen = (id: string) => {
@@ -135,7 +131,7 @@ const HousesDashboard = ({ navigation }: Props) => {
                     icon="home-plus-outline"
                     customSize={64}
                     style={styles.fab}
-                    onPress={() => navigation.navigate('AddHouse', {})}
+                    onPress={() => navigation.navigate('HouseFormScreen', {})}
                     testID="add-house-fab"
                 />
             </View>
@@ -165,4 +161,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default HousesDashboard;
+export default HouseListScreen;

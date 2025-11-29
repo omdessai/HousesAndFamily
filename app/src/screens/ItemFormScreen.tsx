@@ -6,23 +6,21 @@ import type { ItemCategory } from '../types/inventory';
 
 import { mockStore } from '../data/mockStore';
 import type { InventoryItem } from '../types/inventory';
+import { RootStackParamList } from '../navigation/AppNavigator';
 
-type RootStackParamList = {
-    HouseDetails: { houseId: string };
-    AddItem: { houseId: string; item?: InventoryItem };
-};
+type Props = StackScreenProps<RootStackParamList, 'ItemFormScreen'>;
 
-type Props = StackScreenProps<RootStackParamList, 'AddItem'>;
-
-const AddItem = ({ navigation, route }: Props) => {
+const ItemFormScreen = ({ navigation, route }: Props) => {
     const { houseId, item } = route.params;
     const theme = useTheme();
 
     const [name, setName] = useState(item?.name || '');
     const [category, setCategory] = useState<ItemCategory>(item?.category || 'Appliance');
     const [brand, setBrand] = useState(item?.brand || '');
-    const [model, setModel] = useState(item?.model || '');
+    const [modelNumber, setModelNumber] = useState(item?.modelNumber || '');
     const [serial, setSerial] = useState(item?.serialNumber || '');
+    const [purchaseDate, setPurchaseDate] = useState(item?.purchaseDate || '');
+    const [purchasePrice, setPurchasePrice] = useState(item?.purchasePrice?.toString() || '');
 
     const handleScanBarcode = () => {
         Alert.alert(
@@ -34,7 +32,7 @@ const AddItem = ({ navigation, route }: Props) => {
                     onPress: () => {
                         setName('Samsung Refrigerator');
                         setBrand('Samsung');
-                        setModel('RF28R7351SG');
+                        setModelNumber('RF28R7351SG');
                         setCategory('Appliance');
                     }
                 },
@@ -49,14 +47,18 @@ const AddItem = ({ navigation, route }: Props) => {
             return;
         }
 
+        const price = purchasePrice ? parseFloat(purchasePrice) : undefined;
+
         try {
             if (item) {
                 await mockStore.updateInventoryItem(item.id, {
                     name: name.trim(),
                     category,
                     brand: brand.trim(),
-                    model: model.trim(),
+                    modelNumber: modelNumber.trim(),
                     serialNumber: serial.trim(),
+                    purchaseDate: purchaseDate.trim(),
+                    purchasePrice: price,
                 });
             } else {
                 await mockStore.addInventoryItem({
@@ -65,9 +67,10 @@ const AddItem = ({ navigation, route }: Props) => {
                     name: name.trim(),
                     category,
                     brand: brand.trim(),
-                    model: model.trim(),
+                    modelNumber: modelNumber.trim(),
                     serialNumber: serial.trim(),
-                    purchaseDate: new Date().toISOString(),
+                    purchaseDate: purchaseDate.trim() || new Date().toISOString(),
+                    purchasePrice: price,
                 });
             }
             navigation.goBack();
@@ -103,66 +106,50 @@ const AddItem = ({ navigation, route }: Props) => {
                 onChangeText={setName}
                 mode="outlined"
                 style={styles.input}
-                placeholder="e.g., Kitchen Fridge"
             />
-
-            <Text variant="bodyMedium" style={styles.label}>Category</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryScroll}>
-                <SegmentedButtons
-                    value={category}
-                    onValueChange={(val) => setCategory(val as ItemCategory)}
-                    buttons={[
-                        { value: 'Appliance', label: 'Appliance' },
-                        { value: 'Electrical', label: 'Electrical' },
-                        { value: 'Plumbing', label: 'Plumbing' },
-                        { value: 'Furniture', label: 'Furniture' },
-                        { value: 'Other', label: 'Other' },
-                    ]}
-                    style={styles.segmentedButtons}
-                />
-            </ScrollView>
-
-            <View style={styles.row}>
-                <TextInput
-                    label="Brand"
-                    value={brand}
-                    onChangeText={setBrand}
-                    mode="outlined"
-                    style={[styles.input, styles.halfInput]}
-                />
-                <TextInput
-                    label="Model #"
-                    value={model}
-                    onChangeText={setModel}
-                    mode="outlined"
-                    style={[styles.input, styles.halfInput]}
-                />
-            </View>
-
+            <TextInput
+                label="Category"
+                value={category}
+                onChangeText={(text) => setCategory(text as ItemCategory)}
+                style={styles.input}
+            />
+            <TextInput
+                label="Brand"
+                value={brand}
+                onChangeText={setBrand}
+                style={styles.input}
+            />
+            <TextInput
+                label="Model"
+                value={modelNumber}
+                onChangeText={setModelNumber}
+                style={styles.input}
+            />
             <TextInput
                 label="Serial Number"
                 value={serial}
                 onChangeText={setSerial}
-                mode="outlined"
                 style={styles.input}
             />
+            <TextInput
+                label="Purchase Date"
+                value={purchaseDate}
+                onChangeText={setPurchaseDate}
+                style={styles.input}
+                placeholder="YYYY-MM-DD"
+            />
+            <TextInput
+                label="Purchase Price"
+                value={purchasePrice}
+                onChangeText={setPurchasePrice}
+                keyboardType="numeric"
+                style={styles.input}
+                left={<TextInput.Affix text="$" />}
+            />
 
-            <View style={styles.buttonContainer}>
-                <Button
-                    mode="outlined"
-                    onPress={() => navigation.goBack()}
-                    style={styles.button}
-                >
-                    Cancel
-                </Button>
-                <Button
-                    mode="contained"
-                    onPress={handleSave}
-                    style={styles.button}
-                >
-                    {item ? 'Save Changes' : 'Add Item'}
-                </Button>
-            </View>
+            <Button mode="contained" onPress={handleSave} style={styles.button}>
+                {item ? 'Update Item' : 'Save Item'}
+            </Button>
         </ScrollView>
     );
 };
@@ -170,18 +157,18 @@ const AddItem = ({ navigation, route }: Props) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F5F5F5',
+        padding: 20,
+        backgroundColor: 'white',
     },
     content: {
-        padding: 16,
+        paddingBottom: 40,
     },
     scanContainer: {
+        marginBottom: 20,
         alignItems: 'center',
-        marginBottom: 24,
         padding: 16,
-        backgroundColor: 'white',
-        borderRadius: 12,
-        elevation: 1,
+        backgroundColor: '#f5f5f5',
+        borderRadius: 8,
     },
     scanButton: {
         width: '100%',
@@ -201,33 +188,9 @@ const styles = StyleSheet.create({
         marginBottom: 16,
         backgroundColor: 'white',
     },
-    label: {
-        marginBottom: 8,
-        fontWeight: '600',
-    },
-    categoryScroll: {
-        marginBottom: 16,
-    },
-    segmentedButtons: {
-        minWidth: 500, // Ensure it scrolls
-    },
-    row: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        gap: 12,
-    },
-    halfInput: {
-        flex: 1,
-    },
-    buttonContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        gap: 16,
-        marginTop: 24,
-    },
     button: {
-        flex: 1,
+        marginTop: 8,
     },
 });
 
-export default AddItem;
+export default ItemFormScreen;

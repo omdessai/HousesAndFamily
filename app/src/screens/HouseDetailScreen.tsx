@@ -8,17 +8,11 @@ import type { Chore } from '../types/chore';
 import { mockStore } from '../data/mockStore';
 import InventoryList from '../components/InventoryList';
 import ChoreList from '../components/ChoreList';
+import { RootStackParamList } from '../navigation/AppNavigator';
 
-type RootStackParamList = {
-    HouseDetails: { house: House };
-    AddItem: { houseId: string; item?: InventoryItem };
-    AddChore: { houseId: string; chore?: Chore };
-    AddHouse: { house: House };
-};
+type Props = StackScreenProps<RootStackParamList, 'HouseDetailScreen'>;
 
-type Props = StackScreenProps<RootStackParamList, 'HouseDetails'>;
-
-const HouseDetails = ({ navigation, route }: Props) => {
+const HouseDetailScreen = ({ navigation, route }: Props) => {
     const { house } = route.params;
     const theme = useTheme();
     const [tab, setTab] = useState<'inventory' | 'chores'>('inventory');
@@ -38,23 +32,23 @@ const HouseDetails = ({ navigation, route }: Props) => {
     }, [house.id]);
 
     const handleEditHouse = () => {
-        navigation.navigate('AddHouse', { house });
+        navigation.navigate('HouseFormScreen', { house });
     };
 
     const handleAddItem = () => {
-        navigation.navigate('AddItem', { houseId: house.id });
+        navigation.navigate('ItemFormScreen', { houseId: house.id });
     };
 
     const handleItemPress = (item: InventoryItem) => {
-        navigation.navigate('AddItem', { houseId: house.id, item });
+        navigation.navigate('ItemFormScreen', { houseId: house.id, item });
     };
 
     const handleAddChore = () => {
-        navigation.navigate('AddChore', { houseId: house.id });
+        navigation.navigate('ChoreFormScreen', { houseId: house.id });
     };
 
     const handleChorePress = (chore: Chore) => {
-        navigation.navigate('AddChore', { houseId: house.id, chore });
+        navigation.navigate('ChoreFormScreen', { houseId: house.id, chore });
     };
 
     return (
@@ -130,4 +124,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default HouseDetails;
+export default HouseDetailScreen;

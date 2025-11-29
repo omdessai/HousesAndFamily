@@ -1,74 +1,94 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
+import { NavigationContainer } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-import HousesDashboard from '../screens/HousesDashboard';
-import AddHouse from '../screens/AddHouse';
-import FamilyDashboard from '../screens/FamilyDashboard';
+// Screens
+import HouseListScreen from '../screens/HouseListScreen';
+import HouseDetailScreen from '../screens/HouseDetailScreen';
+import HouseFormScreen from '../screens/HouseFormScreen';
+import ItemFormScreen from '../screens/ItemFormScreen';
+import ChoreFormScreen from '../screens/ChoreFormScreen';
+import PersonListScreen from '../screens/PersonListScreen';
+import PersonFormScreen from '../screens/PersonFormScreen';
 
-import HouseDetails from '../screens/HouseDetails';
-import AddItem from '../screens/AddItem';
-import AddChore from '../screens/AddChore';
-import AddPerson from '../screens/AddPerson';
+import { House } from '../types/house';
+import { InventoryItem } from '../types/inventory';
+import { Chore } from '../types/chore';
+import { Person } from '../types/person';
 
+export type RootStackParamList = {
+    HouseListScreen: undefined;
+    HouseDetailScreen: { house: House };
+    HouseFormScreen: { house?: House };
+    ItemFormScreen: { houseId: string; item?: InventoryItem };
+    ChoreFormScreen: { houseId: string; chore?: Chore };
+    PersonListScreen: undefined;
+    PersonFormScreen: { person?: Person };
+};
+
+const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
-const HousesStack = createStackNavigator();
-const FamilyStack = createStackNavigator();
 
 const HousesStackNavigator = () => {
     return (
-        <HousesStack.Navigator>
-            <HousesStack.Screen
-                name="HousesDashboard"
-                component={HousesDashboard}
-                options={{ title: 'Houses', headerLeft: () => null }}
+        <Stack.Navigator>
+            <Stack.Screen
+                name="HouseListScreen"
+                component={HouseListScreen}
+                options={{ title: 'My Houses' }}
             />
-            <HousesStack.Screen
-                name="HouseDetails"
-                component={HouseDetails}
-                options={{ title: 'House Details' }}
+            <Stack.Screen
+                name="HouseDetailScreen"
+                component={HouseDetailScreen}
+                options={({ route }) => ({ title: route.params.house.name })}
             />
-            <HousesStack.Screen
-                name="AddHouse"
-                component={AddHouse}
-                options={{ title: 'Add House' }}
-            />
-            <HousesStack.Screen
-                name="AddItem"
-                component={AddItem}
-                options={({ route }: any) => ({
-                    title: route.params?.item ? 'Edit Item' : 'Add Item'
+            <Stack.Screen
+                name="HouseFormScreen"
+                component={HouseFormScreen}
+                options={({ route }) => ({
+                    title: route.params?.house ? 'Edit House' : 'Add New House',
+                    presentation: 'modal',
                 })}
             />
-            <HousesStack.Screen
-                name="AddChore"
-                component={AddChore}
-                options={({ route }: any) => ({
-                    title: route.params?.chore ? 'Edit Chore' : 'Add Chore'
+            <Stack.Screen
+                name="ItemFormScreen"
+                component={ItemFormScreen}
+                options={({ route }) => ({
+                    title: route.params?.item ? 'Edit Item' : 'Add Item',
+                    presentation: 'modal',
                 })}
             />
-        </HousesStack.Navigator>
+            <Stack.Screen
+                name="ChoreFormScreen"
+                component={ChoreFormScreen}
+                options={({ route }) => ({
+                    title: route.params?.chore ? 'Edit Chore' : 'Add Chore',
+                    presentation: 'modal',
+                })}
+            />
+        </Stack.Navigator>
     );
 };
 
 const FamilyStackNavigator = () => {
     return (
-        <FamilyStack.Navigator>
-            <FamilyStack.Screen
-                name="FamilyDashboard"
-                component={FamilyDashboard}
-                options={{ title: 'Family', headerLeft: () => null }}
+        <Stack.Navigator>
+            <Stack.Screen
+                name="PersonListScreen"
+                component={PersonListScreen}
+                options={{ title: 'Family & People' }}
             />
-            <FamilyStack.Screen
-                name="AddPerson"
-                component={AddPerson}
-                options={({ route }: any) => ({
-                    title: route.params?.person ? 'Edit Person' : 'Add Person'
+            <Stack.Screen
+                name="PersonFormScreen"
+                component={PersonFormScreen}
+                options={({ route }) => ({
+                    title: route.params?.person ? 'Edit Person' : 'Add Person',
+                    presentation: 'modal',
                 })}
             />
-        </FamilyStack.Navigator>
+        </Stack.Navigator>
     );
 };
 
@@ -77,31 +97,24 @@ const AppNavigator = () => {
         <NavigationContainer>
             <Tab.Navigator
                 screenOptions={({ route }) => ({
-                    tabBarIcon: ({ focused, color, size }) => {
+                    headerShown: false,
+                    tabBarIcon: ({ color, size }) => {
                         let iconName;
 
-                        if (route.name === 'HousesTab') {
-                            iconName = 'home-analytics';
-                        } else if (route.name === 'FamilyTab') {
+                        if (route.name === 'Houses') {
+                            iconName = 'home-city';
+                        } else if (route.name === 'Family') {
                             iconName = 'account-group';
                         }
 
-                        return <Icon name={iconName || 'circle'} size={size} color={color} />;
+                        return <Icon name={iconName as string} size={size} color={color} />;
                     },
-                    tabBarActiveTintColor: '#6200ee',
-                    tabBarInactiveTintColor: 'gray',
-                    headerShown: false,
                 })}
             >
+                <Tab.Screen name="Houses" component={HousesStackNavigator} />
                 <Tab.Screen
-                    name="HousesTab"
-                    component={HousesStackNavigator}
-                    options={{ title: 'Houses' }}
-                />
-                <Tab.Screen
-                    name="FamilyTab"
+                    name="Family"
                     component={FamilyStackNavigator}
-                    options={{ title: 'Family' }}
                 />
             </Tab.Navigator>
         </NavigationContainer>
