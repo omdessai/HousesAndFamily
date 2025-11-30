@@ -31,7 +31,7 @@ const ChoreList = ({ data, onAddChore, onChorePress }: ChoreListProps) => {
                 }
             />
             <FAB
-                icon="plus"
+                icon="clipboard-plus-outline"
                 label="Add Chore"
                 style={styles.fab}
                 onPress={onAddChore}
