@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, ScrollView, Alert, Image, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, ScrollView, Alert, Image, TouchableOpacity, Platform, Modal } from 'react-native';
 import { TextInput, Button, Text, useTheme, Avatar } from 'react-native-paper';
 import type { StackScreenProps } from '@react-navigation/stack';
 import { launchImageLibrary } from 'react-native-image-picker';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { storageService, imageStorage } from '../storage';
 
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -14,7 +15,8 @@ const PersonFormScreen = ({ navigation, route }: Props) => {
     const { personId } = route.params || {};
 
     const [name, setName] = useState('');
-    const [birthDate, setBirthDate] = useState('');
+    const [birthDate, setBirthDate] = useState<Date | null>(null);
+    const [showDatePicker, setShowDatePicker] = useState(false);
     const [avatarUri, setAvatarUri] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(!!personId);
 
@@ -26,7 +28,7 @@ const PersonFormScreen = ({ navigation, route }: Props) => {
                     const person = await storageService.getPersonRepository().findById(personId);
                     if (person) {
                         setName(person.name);
-                        setBirthDate(person.birthDate ? new Date(person.birthDate).toISOString().split('T')[0] : '');
+                        setBirthDate(person.birthDate ? new Date(person.birthDate) : null);
                         setAvatarUri(person.avatarUri || null);
                     }
                 } catch (error) {
@@ -58,15 +60,7 @@ const PersonFormScreen = ({ navigation, route }: Props) => {
             return;
         }
 
-        let parsedDate: Date | null = null;
-        if (birthDate.trim()) {
-            const timestamp = Date.parse(birthDate);
-            if (isNaN(timestamp)) {
-                Alert.alert('Error', 'Invalid date format. Use YYYY-MM-DD');
-                return;
-            }
-            parsedDate = new Date(timestamp);
-        }
+        let parsedDate: Date | null = birthDate;
 
         try {
             await storageService.initialize();
@@ -140,15 +134,64 @@ const PersonFormScreen = ({ navigation, route }: Props) => {
                 testID="person-name-input"
             />
 
-            <TextInput
-                label="Birth Date (YYYY-MM-DD)"
-                value={birthDate}
-                onChangeText={setBirthDate}
-                mode="outlined"
-                style={styles.input}
-                placeholder="YYYY-MM-DD"
-                testID="person-birthdate-input"
-            />
+            <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+                <View pointerEvents="none">
+                    <TextInput
+                        label="Birth Date"
+                        value={birthDate ? birthDate.toLocaleDateString() : ''}
+                        mode="outlined"
+                        style={styles.input}
+                        editable={false}
+                        right={<TextInput.Icon icon="calendar" />}
+                        testID="person-birthdate-input"
+                    />
+                </View>
+            </TouchableOpacity>
+
+            {showDatePicker && (
+                Platform.OS === 'ios' ? (
+                    <Modal
+                        transparent={true}
+                        animationType="slide"
+                        visible={showDatePicker}
+                        onRequestClose={() => setShowDatePicker(false)}
+                    >
+                        <View style={styles.modalContainer}>
+                            <View style={styles.modalContent}>
+                                <View style={styles.modalHeader}>
+                                    <Button onPress={() => setShowDatePicker(false)}>Cancel</Button>
+                                    <Button onPress={() => setShowDatePicker(false)}>Done</Button>
+                                </View>
+                                <DateTimePicker
+                                    value={birthDate || new Date()}
+                                    mode="date"
+                                    display="inline"
+                                    onChange={(event, selectedDate) => {
+                                        if (selectedDate) {
+                                            setBirthDate(selectedDate);
+                                        }
+                                    }}
+                                    maximumDate={new Date()}
+                                    style={styles.datePicker}
+                                />
+                            </View>
+                        </View>
+                    </Modal>
+                ) : (
+                    <DateTimePicker
+                        value={birthDate || new Date()}
+                        mode="date"
+                        display="default"
+                        onChange={(event, selectedDate) => {
+                            setShowDatePicker(false);
+                            if (selectedDate) {
+                                setBirthDate(selectedDate);
+                            }
+                        }}
+                        maximumDate={new Date()}
+                    />
+                )
+            )}
 
             <Button mode="contained" onPress={handleSave} style={styles.button} testID="save-person-button">
                 {personId ? 'Update Person' : 'Save Person'}
@@ -184,6 +227,27 @@ const styles = StyleSheet.create({
     loadingContainer: {
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'flex-end',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContent: {
+        backgroundColor: 'white',
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        paddingBottom: 20,
+    },
+    modalHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        padding: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: '#eee',
+    },
+    datePicker: {
+        height: 300,
     },
 });
 
