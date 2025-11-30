@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, ScrollView, Alert, Image, TouchableOpacity, Platform, Modal } from 'react-native';
-import { TextInput, Button, Text, useTheme, Avatar } from 'react-native-paper';
+import { StyleSheet, View, ScrollView, Alert, Platform, TouchableOpacity, Modal } from 'react-native';
+import { TextInput, Button, Text, useTheme } from 'react-native-paper';
 import type { StackScreenProps } from '@react-navigation/stack';
-import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { storageService, imageStorage } from '../storage';
+import EditableAvatar from '../components/EditableAvatar';
 
 import { RootStackParamList } from '../navigation/AppNavigator';
 
@@ -43,39 +43,7 @@ const PersonFormScreen = ({ navigation, route }: Props) => {
         loadPerson();
     }, [personId, navigation]);
 
-    const handleSelectPhoto = async () => {
-        Alert.alert(
-            'Select Photo',
-            'Choose a source',
-            [
-                {
-                    text: 'Camera',
-                    onPress: async () => {
-                        const result = await launchCamera({
-                            mediaType: 'photo',
-                            quality: 0.8,
-                        });
-                        if (result.assets && result.assets.length > 0 && result.assets[0].uri) {
-                            setAvatarUri(result.assets[0].uri);
-                        }
-                    },
-                },
-                {
-                    text: 'Gallery',
-                    onPress: async () => {
-                        const result = await launchImageLibrary({
-                            mediaType: 'photo',
-                            quality: 0.8,
-                        });
-                        if (result.assets && result.assets.length > 0 && result.assets[0].uri) {
-                            setAvatarUri(result.assets[0].uri);
-                        }
-                    },
-                },
-                { text: 'Cancel', style: 'cancel' },
-            ]
-        );
-    };
+
 
     const handleSave = async () => {
         if (!name.trim()) {
@@ -134,18 +102,11 @@ const PersonFormScreen = ({ navigation, route }: Props) => {
                 {personId ? 'Edit Person' : 'Add Person'}
             </Text>
 
-            <View style={styles.avatarContainer}>
-                <TouchableOpacity onPress={handleSelectPhoto}>
-                    {avatarUri ? (
-                        <Avatar.Image size={100} source={{ uri: avatarUri }} />
-                    ) : (
-                        <Avatar.Icon size={100} icon="camera" />
-                    )}
-                </TouchableOpacity>
-                <Button mode="text" onPress={handleSelectPhoto}>
-                    {avatarUri ? 'Change Photo' : 'Add Photo'}
-                </Button>
-            </View>
+            <EditableAvatar
+                avatarUri={avatarUri}
+                onAvatarChange={setAvatarUri}
+                size={100}
+            />
 
             <TextInput
                 label="Name"
@@ -235,10 +196,6 @@ const styles = StyleSheet.create({
         marginBottom: 24,
         fontWeight: 'bold',
         textAlign: 'center',
-    },
-    avatarContainer: {
-        alignItems: 'center',
-        marginBottom: 24,
     },
     input: {
         marginBottom: 16,

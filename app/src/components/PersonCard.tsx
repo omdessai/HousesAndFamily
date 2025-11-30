@@ -43,11 +43,17 @@ const PersonCard = forwardRef<SwipeableItemRef, PersonCardProps>(
                         <Card.Content style={styles.content}>
                             <View style={styles.leftContent}>
                                 {avatarUri ? (
-                                    <Avatar.Image
-                                        size={50}
-                                        source={{ uri: avatarUri }}
-                                        style={styles.personIcon}
-                                    />
+                                    avatarUri.startsWith('icon:') ? (
+                                        <View style={[styles.iconAvatar, { backgroundColor: theme.colors.primary }]}>
+                                            <Text style={[styles.iconAvatarText, { color: theme.colors.onPrimary }]}>{avatarUri.replace('icon:', '')}</Text>
+                                        </View>
+                                    ) : (
+                                        <Avatar.Image
+                                            size={50}
+                                            source={{ uri: avatarUri }}
+                                            style={styles.personIcon}
+                                        />
+                                    )
                                 ) : (
                                     <Avatar.Icon
                                         size={50}
@@ -125,6 +131,17 @@ const styles = StyleSheet.create({
     },
     dateText: {
         marginTop: 4,
+    },
+    iconAvatar: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        backgroundColor: '#E3F2FD',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    iconAvatarText: {
+        fontSize: 30,
     },
 });
 
