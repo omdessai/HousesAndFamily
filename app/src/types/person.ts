@@ -1,6 +1,8 @@
 export interface Person {
     id: string;
     name: string;
-    relation: string;
-    isFavorite: boolean;
+    birthDate?: Date | null;
+    avatarUri?: string | null;
+    createdAt?: Date;
+    updatedAt?: Date;
 }

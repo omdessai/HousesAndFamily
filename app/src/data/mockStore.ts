@@ -27,14 +27,10 @@ const people: Person[] = [
     {
         id: '1',
         name: 'John Doe',
-        relation: 'Father',
-        isFavorite: true,
     },
     {
         id: '2',
         name: 'Jane Doe',
-        relation: 'Mother',
-        isFavorite: false,
     },
 ];
 

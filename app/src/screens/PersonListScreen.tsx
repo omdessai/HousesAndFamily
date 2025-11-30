@@ -4,9 +4,7 @@ import { FAB, Text } from 'react-native-paper';
 import type { StackScreenProps } from '@react-navigation/stack';
 import PersonCard from '../components/PersonCard';
 import { SwipeableItemRef } from '../components/SwipeableItem';
-import type { Person } from '../types/person';
-
-import { mockStore } from '../data/mockStore';
+import { Person, storageService } from '../storage';
 import { RootStackParamList } from '../navigation/AppNavigator';
 
 type Props = StackScreenProps<RootStackParamList, 'PersonListScreen'>;
@@ -16,13 +14,22 @@ const PersonListScreen = ({ navigation }: Props) => {
     const swipeableRefs = useRef<Map<string, SwipeableItemRef>>(new Map());
     const openSwipeableId = useRef<string | null>(null);
 
-    React.useEffect(() => {
-        const loadPeople = async () => {
-            const data = await mockStore.getPeople();
+    const loadPeople = async () => {
+        try {
+            await storageService.initialize();
+            const data = await storageService.getPersonRepository().findAll();
             setPeople(data);
-        };
-        loadPeople();
-    }, []);
+        } catch (error) {
+            console.error('Failed to load people:', error);
+        }
+    };
+
+    React.useEffect(() => {
+        const unsubscribe = navigation.addListener('focus', () => {
+            loadPeople();
+        });
+        return unsubscribe;
+    }, [navigation]);
 
     const handleDelete = (id: string) => {
         Alert.alert(
@@ -33,37 +40,17 @@ const PersonListScreen = ({ navigation }: Props) => {
                 {
                     text: 'Delete',
                     style: 'destructive',
-                    onPress: () => {
-                        setPeople((prev) => prev.filter((p) => p.id !== id));
+                    onPress: async () => {
+                        await storageService.getPersonRepository().delete(id);
+                        loadPeople();
                     },
                 },
             ]
         );
     };
 
-    const handleToggleFavorite = (person: Person) => {
-        const newFavoriteStatus = !person.isFavorite;
-
-        // If setting to favorite, unfavorite all others (exclusive favorite logic)
-        if (newFavoriteStatus) {
-            setPeople((prev) =>
-                prev.map((p) => ({
-                    ...p,
-                    isFavorite: p.id === person.id,
-                }))
-            );
-        } else {
-            // Just unfavorite this one
-            setPeople((prev) =>
-                prev.map((p) =>
-                    p.id === person.id ? { ...p, isFavorite: false } : p
-                )
-            );
-        }
-    };
-
     const handleEdit = (person: Person) => {
-        navigation.navigate('PersonFormScreen', { person });
+        navigation.navigate('PersonFormScreen', { personId: person.id });
     };
 
     const onSwipeableOpen = (id: string) => {
@@ -93,10 +80,9 @@ const PersonListScreen = ({ navigation }: Props) => {
             }}
             id={item.id}
             name={item.name}
-            relation={item.relation}
-            isFavorite={item.isFavorite}
+            birthDate={item.birthDate}
+            avatarUri={item.avatarUri}
             onDelete={() => handleDelete(item.id)}
-            onToggleFavorite={() => handleToggleFavorite(item)}
             onPress={() => handleEdit(item)}
             onSwipeableOpen={() => onSwipeableOpen(item.id)}
         />

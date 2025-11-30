@@ -20,16 +20,24 @@ const HouseDetailScreen = ({ navigation, route }: Props) => {
     const [inventory, setInventory] = useState<InventoryItem[]>([]);
     const [chores, setChores] = useState<Chore[]>([]);
 
-    useEffect(() => {
-        const loadData = async () => {
-            const inventoryData = await mockStore.getHouseInventory(house.id);
-            setInventory(inventoryData);
+    const loadData = React.useCallback(async () => {
+        const inventoryData = await mockStore.getHouseInventory(house.id);
+        setInventory(inventoryData);
 
-            const choresData = await mockStore.getHouseChores(house.id);
-            setChores(choresData);
-        };
-        loadData();
+        const choresData = await mockStore.getHouseChores(house.id);
+        setChores(choresData);
     }, [house.id]);
+
+    useEffect(() => {
+        const unsubscribe = navigation.addListener('focus', () => {
+            loadData();
+        });
+        return unsubscribe;
+    }, [navigation, loadData]);
+
+    useEffect(() => {
+        loadData();
+    }, [loadData]);
 
     const handleEditHouse = () => {
         navigation.navigate('HouseFormScreen', { house });

@@ -19,9 +19,8 @@ export const schema = appSchema({
             name: 'people',
             columns: [
                 { name: 'name', type: 'string' },
-                { name: 'relation', type: 'string' },
-                { name: 'is_favorite', type: 'boolean' },
-                { name: 'photo_uri', type: 'string', isOptional: true },
+                { name: 'birth_date', type: 'number', isOptional: true }, // Storing as timestamp
+                { name: 'avatar_uri', type: 'string', isOptional: true },
                 { name: 'created_at', type: 'number' },
                 { name: 'updated_at', type: 'number' },
             ],

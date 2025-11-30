@@ -1,16 +1,14 @@
 import React, { forwardRef } from 'react';
 import { StyleSheet, View, TouchableOpacity } from 'react-native';
-import { Card, Text, IconButton, useTheme } from 'react-native-paper';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { Card, Text, Avatar, useTheme } from 'react-native-paper';
 import SwipeableItem, { SwipeableItemRef } from './SwipeableItem';
 
 interface PersonCardProps {
     id: string;
     name: string;
-    relation: string;
-    isFavorite: boolean;
+    birthDate?: Date | null;
+    avatarUri?: string | null;
     onDelete: () => void;
-    onToggleFavorite: () => void;
     onPress: () => void;
     onSwipeableOpen?: () => void;
 }
@@ -20,16 +18,19 @@ const PersonCard = forwardRef<SwipeableItemRef, PersonCardProps>(
         {
             id,
             name,
-            relation,
-            isFavorite,
+            birthDate,
+            avatarUri,
             onDelete,
-            onToggleFavorite,
             onPress,
             onSwipeableOpen,
         },
         ref
     ) => {
         const theme = useTheme();
+
+        const formattedDate = birthDate
+            ? new Date(birthDate).toLocaleDateString()
+            : null;
 
         return (
             <SwipeableItem
@@ -41,12 +42,20 @@ const PersonCard = forwardRef<SwipeableItemRef, PersonCardProps>(
                     <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
                         <Card.Content style={styles.content}>
                             <View style={styles.leftContent}>
-                                <Icon
-                                    name="account-circle"
-                                    size={50}
-                                    color={theme.colors.primary}
-                                    style={styles.personIcon}
-                                />
+                                {avatarUri ? (
+                                    <Avatar.Image
+                                        size={50}
+                                        source={{ uri: avatarUri }}
+                                        style={styles.personIcon}
+                                    />
+                                ) : (
+                                    <Avatar.Icon
+                                        size={50}
+                                        icon="account"
+                                        color={theme.colors.onPrimary}
+                                        style={{ backgroundColor: theme.colors.primary, marginRight: 16 }}
+                                    />
+                                )}
                                 <View style={styles.textContainer}>
                                     <Text
                                         variant="titleMedium"
@@ -60,27 +69,18 @@ const PersonCard = forwardRef<SwipeableItemRef, PersonCardProps>(
                                     >
                                         {name}
                                     </Text>
-                                    <Text
-                                        variant="bodyMedium"
-                                        style={[
-                                            styles.relationText,
-                                            { color: theme.colors.onSurfaceVariant },
-                                        ]}
-                                        numberOfLines={1}
-                                        ellipsizeMode="tail"
-                                    >
-                                        {relation}
-                                    </Text>
+                                    {formattedDate && (
+                                        <Text
+                                            variant="bodyMedium"
+                                            style={[
+                                                styles.dateText,
+                                                { color: theme.colors.onSurfaceVariant },
+                                            ]}
+                                        >
+                                            Born: {formattedDate}
+                                        </Text>
+                                    )}
                                 </View>
-                            </View>
-                            <View style={styles.rightActions}>
-                                <IconButton
-                                    icon={isFavorite ? 'heart' : 'heart-outline'}
-                                    iconColor={isFavorite ? theme.colors.error : theme.colors.onSurfaceVariant}
-                                    size={24}
-                                    onPress={onToggleFavorite}
-                                    testID={`person-favorite-button-${id}`}
-                                />
                             </View>
                         </Card.Content>
                     </TouchableOpacity>
@@ -106,8 +106,7 @@ const styles = StyleSheet.create({
     content: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingVertical: 20,
+        paddingVertical: 16,
     },
     leftContent: {
         flexDirection: 'row',
@@ -119,16 +118,13 @@ const styles = StyleSheet.create({
     },
     textContainer: {
         flex: 1,
+        justifyContent: 'center',
     },
     nameText: {
         fontWeight: 'bold',
     },
-    relationText: {
-        marginTop: 6,
-    },
-    rightActions: {
-        flexDirection: 'row',
-        alignItems: 'center',
+    dateText: {
+        marginTop: 4,
     },
 });
 

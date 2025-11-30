@@ -142,11 +142,11 @@ describe('App E2E Tests', () => {
         await element(by.id('add-person-fab')).tap();
 
         // Verify we're on Add Person screen
-        await expect(element(by.text('Add Family Member'))).toBeVisible();
+        await expect(element(by.text('Add Person'))).toBeVisible();
 
         // Fill in details
         await element(by.id('person-name-input')).typeText('Jane Doe');
-        await element(by.id('person-relation-input')).typeText('Mother');
+        await element(by.id('person-birthdate-input')).typeText('1980-01-01');
 
         // Save
         await element(by.id('save-person-button')).tap();
@@ -156,7 +156,7 @@ describe('App E2E Tests', () => {
 
         // Verify the new person appears
         await expect(element(by.text('Jane Doe'))).toBeVisible();
-        await expect(element(by.text('Mother'))).toBeVisible();
+        // Date might be formatted, so we might not check for exact date string unless we know the format displayed
     });
 
     it('should edit person', async () => {
@@ -164,7 +164,7 @@ describe('App E2E Tests', () => {
         await element(by.text('Jane Doe')).tap();
 
         // Verify we're on Edit Person screen
-        await expect(element(by.text('Edit Family Member'))).toBeVisible();
+        await expect(element(by.text('Edit Person'))).toBeVisible();
 
         // Change name
         await element(by.id('person-name-input')).clearText();

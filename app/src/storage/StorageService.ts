@@ -1,5 +1,6 @@
 import { databaseService } from './database/database';
 import { imageStorage } from './adapters/ImageStorageAdapter';
+import { PersonRepository } from './repositories/PersonRepository';
 import type { Database } from '@nozbe/watermelondb';
 
 /**
@@ -8,6 +9,7 @@ import type { Database } from '@nozbe/watermelondb';
  */
 class StorageService {
     private database: Database | null = null;
+    public personRepository: PersonRepository | null = null;
 
     /**
      * Initialize all storage systems
@@ -16,6 +18,9 @@ class StorageService {
         try {
             // Initialize database
             this.database = await databaseService.initialize();
+
+            // Initialize repositories
+            this.personRepository = new PersonRepository(this.database);
 
             // Initialize image storage
             await imageStorage.initialize();
@@ -35,6 +40,16 @@ class StorageService {
             throw new Error('Storage not initialized. Call initialize() first.');
         }
         return this.database;
+    }
+
+    /**
+     * Get Person Repository
+     */
+    getPersonRepository(): PersonRepository {
+        if (!this.personRepository) {
+            throw new Error('Storage not initialized. Call initialize() first.');
+        }
+        return this.personRepository;
     }
 
     /**

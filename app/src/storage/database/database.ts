@@ -3,9 +3,10 @@ import SQLiteAdapter from '@nozbe/watermelondb/adapters/sqlite';
 import { schema } from './schema';
 import { migrations } from './migrations';
 
+import Person from '../models/Person';
+
 // Model imports will go here when we create actual models
 // import House from '../models/House';
-// import Person from '../models/Person';
 // import InventoryItem from '../models/InventoryItem';
 // import Chore from '../models/Chore';
 
@@ -20,7 +21,7 @@ class DatabaseService {
         const adapter = new SQLiteAdapter({
             schema,
             migrations,
-            jsi: true, // Use JSI for better performance
+            jsi: false, // Temporarily disable JSI to debug crash
             onSetUpError: (error) => {
                 console.error('Database setup error:', error);
             },
@@ -29,9 +30,9 @@ class DatabaseService {
         this.database = new Database({
             adapter,
             modelClasses: [
+                Person,
                 // Add model classes here when created
                 // House,
-                // Person,
                 // InventoryItem,
                 // Chore,
             ],

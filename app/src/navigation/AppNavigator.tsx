@@ -25,7 +25,7 @@ export type RootStackParamList = {
     ItemFormScreen: { houseId: string; item?: InventoryItem };
     ChoreFormScreen: { houseId: string; chore?: Chore };
     PersonListScreen: undefined;
-    PersonFormScreen: { person?: Person };
+    PersonFormScreen: { personId?: string };
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -81,7 +81,7 @@ const FamilyStackNavigator = () => {
                 name="PersonFormScreen"
                 component={PersonFormScreen}
                 options={({ route }) => ({
-                    title: route.params?.person ? 'Edit Person' : 'Add Person',
+                    title: route.params?.personId ? 'Edit Person' : 'Add Person',
                 })}
             />
         </Stack.Navigator>

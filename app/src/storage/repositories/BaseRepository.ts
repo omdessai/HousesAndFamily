@@ -1,6 +1,6 @@
 import { Model, Q } from '@nozbe/watermelondb';
 import { IRepository } from '../interfaces/IStorage';
-import { Database } from './database';
+import { Database } from '@nozbe/watermelondb';
 
 export abstract class BaseRepository<T extends Model> implements IRepository<any> {
     protected tableName: string;
