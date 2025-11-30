@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, ScrollView, Alert } from 'react-native';
+import CameraScreen from 'react-native-camera-kit';
+import { StyleSheet, View, ScrollView, Alert, Modal, Platform, PermissionsAndroid } from 'react-native';
 import { TextInput, Button, Text, useTheme, SegmentedButtons } from 'react-native-paper';
 import type { StackScreenProps } from '@react-navigation/stack';
 import type { ItemCategory } from '../types/inventory';
@@ -21,24 +22,71 @@ const ItemFormScreen = ({ navigation, route }: Props) => {
     const [serial, setSerial] = useState(item?.serialNumber || '');
     const [purchaseDate, setPurchaseDate] = useState(item?.purchaseDate || '');
     const [purchasePrice, setPurchasePrice] = useState(item?.purchasePrice?.toString() || '');
+    const [showScanner, setShowScanner] = useState(false);
 
-    const handleScanBarcode = () => {
-        Alert.alert(
-            'Scan Barcode',
-            'Camera integration coming soon! Simulating a scan...',
-            [
-                {
-                    text: 'Simulate Scan',
-                    onPress: () => {
-                        setName('Samsung Refrigerator');
-                        setBrand('Samsung');
-                        setModelNumber('RF28R7351SG');
-                        setCategory('Appliance');
+    const requestCameraPermission = async () => {
+        if (Platform.OS === 'android') {
+            try {
+                const granted = await PermissionsAndroid.request(
+                    PermissionsAndroid.PERMISSIONS.CAMERA,
+                    {
+                        title: 'Camera Permission',
+                        message: 'App needs access to your camera to scan barcodes.',
+                        buttonNeutral: 'Ask Me Later',
+                        buttonNegative: 'Cancel',
+                        buttonPositive: 'OK',
+                    }
+                );
+                return granted === PermissionsAndroid.RESULTS.GRANTED;
+            } catch (err) {
+                console.warn(err);
+                return false;
+            }
+        }
+        return true;
+    };
+
+    const handleScanBarcode = async () => {
+        // On iOS, always use manual entry (simulator doesn't support camera)
+        // On Android, try to use camera (works on real devices)
+        if (Platform.OS === 'ios') {
+            // Fallback for simulator - manual entry
+            Alert.prompt(
+                'Enter Barcode',
+                'Enter a barcode manually (camera requires physical device):',
+                (code) => {
+                    if (code && code.trim()) {
+                        simulateBarcodeLookup(code.trim());
                     }
                 },
-                { text: 'Cancel', style: 'cancel' }
-            ]
-        );
+                'plain-text',
+                '',
+                'numeric'
+            );
+        } else {
+            const hasPermission = await requestCameraPermission();
+            if (hasPermission) {
+                setShowScanner(true);
+            } else {
+                Alert.alert('Permission Denied', 'Camera permission is required to scan barcodes.');
+            }
+        }
+    };
+
+    const simulateBarcodeLookup = (code: string) => {
+        Alert.alert('Barcode Processed', `Code: ${code}\n\nSimulating product lookup...`);
+
+        // Simulate lookup
+        setName('Scanned Item ' + code.substring(0, 4));
+        setBrand('Generic Brand');
+        setModelNumber(code);
+        setCategory('Appliance');
+    };
+
+    const onBarcodeScan = (event: any) => {
+        const code = event.nativeEvent.codeStringValue;
+        setShowScanner(false);
+        simulateBarcodeLookup(code);
     };
 
     const handleSave = async () => {
@@ -80,77 +128,102 @@ const ItemFormScreen = ({ navigation, route }: Props) => {
     };
 
     return (
-        <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-            <View style={styles.scanContainer}>
-                <Button
-                    mode="contained-tonal"
-                    icon="barcode-scan"
-                    onPress={handleScanBarcode}
-                    style={styles.scanButton}
-                    contentStyle={styles.scanButtonContent}
-                >
-                    Scan Barcode
-                </Button>
-                <Text variant="bodySmall" style={styles.scanHint}>
-                    Scan an appliance tag to auto-fill details
+        <>
+            <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+                <View style={styles.scanContainer}>
+                    <Button
+                        mode="contained-tonal"
+                        icon="barcode-scan"
+                        onPress={handleScanBarcode}
+                        style={styles.scanButton}
+                        contentStyle={styles.scanButtonContent}
+                    >
+                        Scan Barcode
+                    </Button>
+                    <Text variant="bodySmall" style={styles.scanHint}>
+                        Scan an appliance tag to auto-fill details
+                    </Text>
+                </View>
+
+                <Text variant="titleMedium" style={styles.sectionTitle}>
+                    {item ? 'Edit Item Details' : 'Item Details'}
                 </Text>
-            </View>
 
-            <Text variant="titleMedium" style={styles.sectionTitle}>
-                {item ? 'Edit Item Details' : 'Item Details'}
-            </Text>
+                <TextInput
+                    label="Item Name"
+                    value={name}
+                    onChangeText={setName}
+                    mode="outlined"
+                    style={styles.input}
+                />
+                <TextInput
+                    label="Category"
+                    value={category}
+                    onChangeText={(text) => setCategory(text as ItemCategory)}
+                    style={styles.input}
+                />
+                <TextInput
+                    label="Brand"
+                    value={brand}
+                    onChangeText={setBrand}
+                    style={styles.input}
+                />
+                <TextInput
+                    label="Model"
+                    value={modelNumber}
+                    onChangeText={setModelNumber}
+                    style={styles.input}
+                />
+                <TextInput
+                    label="Serial Number"
+                    value={serial}
+                    onChangeText={setSerial}
+                    style={styles.input}
+                />
+                <TextInput
+                    label="Purchase Date"
+                    value={purchaseDate}
+                    onChangeText={setPurchaseDate}
+                    style={styles.input}
+                    placeholder="YYYY-MM-DD"
+                />
+                <TextInput
+                    label="Purchase Price"
+                    value={purchasePrice}
+                    onChangeText={setPurchasePrice}
+                    keyboardType="numeric"
+                    style={styles.input}
+                    left={<TextInput.Affix text="$" />}
+                />
 
-            <TextInput
-                label="Item Name"
-                value={name}
-                onChangeText={setName}
-                mode="outlined"
-                style={styles.input}
-            />
-            <TextInput
-                label="Category"
-                value={category}
-                onChangeText={(text) => setCategory(text as ItemCategory)}
-                style={styles.input}
-            />
-            <TextInput
-                label="Brand"
-                value={brand}
-                onChangeText={setBrand}
-                style={styles.input}
-            />
-            <TextInput
-                label="Model"
-                value={modelNumber}
-                onChangeText={setModelNumber}
-                style={styles.input}
-            />
-            <TextInput
-                label="Serial Number"
-                value={serial}
-                onChangeText={setSerial}
-                style={styles.input}
-            />
-            <TextInput
-                label="Purchase Date"
-                value={purchaseDate}
-                onChangeText={setPurchaseDate}
-                style={styles.input}
-                placeholder="YYYY-MM-DD"
-            />
-            <TextInput
-                label="Purchase Price"
-                value={purchasePrice}
-                onChangeText={setPurchasePrice}
-                keyboardType="numeric"
-                style={styles.input}
-                left={<TextInput.Affix text="$" />}
-            />
+                <Button mode="contained" onPress={handleSave} style={styles.button}>
+                    {item ? 'Update Item' : 'Save Item'}
+                </Button>
+            </ScrollView>
 
-            <Button mode="contained" onPress={handleSave} style={styles.button}>
-                {item ? 'Update Item' : 'Save Item'}
-            </Button>
-        </ScrollView>
+            <Modal
+                visible={showScanner}
+                animationType="slide"
+                onRequestClose={() => setShowScanner(false)}
+            >
+                <View style={styles.scannerContainer}>
+                    <CameraScreen
+                        scanBarcode={true}
+                        onReadCode={onBarcodeScan}
+                        showFrame={true}
+                        laserColor="red"
+                        frameColor="white"
+                    />
+                    <Button
+                        mode="contained"
+                        onPress={() => setShowScanner(false)}
+                        style={styles.closeScannerButton}
+                    >
+                        Close Scanner
+                    </Button>
+                </View>
+            </Modal>
+        </>
     );
 };
 
@@ -190,6 +263,16 @@ const styles = StyleSheet.create({
     },
     button: {
         marginTop: 8,
+    },
+    scannerContainer: {
+        flex: 1,
+        backgroundColor: 'black',
+    },
+    closeScannerButton: {
+        position: 'absolute',
+        bottom: 50,
+        alignSelf: 'center',
+        width: 200,
     },
 });
 

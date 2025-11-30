@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, View, ScrollView, Alert, Image, TouchableOpacity, Platform, Modal } from 'react-native';
 import { TextInput, Button, Text, useTheme, Avatar } from 'react-native-paper';
 import type { StackScreenProps } from '@react-navigation/stack';
-import { launchImageLibrary } from 'react-native-image-picker';
+import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { storageService, imageStorage } from '../storage';
 
@@ -44,14 +44,37 @@ const PersonFormScreen = ({ navigation, route }: Props) => {
     }, [personId, navigation]);
 
     const handleSelectPhoto = async () => {
-        const result = await launchImageLibrary({
-            mediaType: 'photo',
-            quality: 0.8,
-        });
-
-        if (result.assets && result.assets.length > 0 && result.assets[0].uri) {
-            setAvatarUri(result.assets[0].uri);
-        }
+        Alert.alert(
+            'Select Photo',
+            'Choose a source',
+            [
+                {
+                    text: 'Camera',
+                    onPress: async () => {
+                        const result = await launchCamera({
+                            mediaType: 'photo',
+                            quality: 0.8,
+                        });
+                        if (result.assets && result.assets.length > 0 && result.assets[0].uri) {
+                            setAvatarUri(result.assets[0].uri);
+                        }
+                    },
+                },
+                {
+                    text: 'Gallery',
+                    onPress: async () => {
+                        const result = await launchImageLibrary({
+                            mediaType: 'photo',
+                            quality: 0.8,
+                        });
+                        if (result.assets && result.assets.length > 0 && result.assets[0].uri) {
+                            setAvatarUri(result.assets[0].uri);
+                        }
+                    },
+                },
+                { text: 'Cancel', style: 'cancel' },
+            ]
+        );
     };
 
     const handleSave = async () => {
