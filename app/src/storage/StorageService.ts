@@ -1,6 +1,9 @@
 import { databaseService } from './database/database';
 import { imageStorage } from './adapters/ImageStorageAdapter';
 import { PersonRepository } from './repositories/PersonRepository';
+import { HouseRepository } from './repositories/HouseRepository';
+import { InventoryItemRepository } from './repositories/InventoryItemRepository';
+import { ChoreRepository } from './repositories/ChoreRepository';
 import type { Database } from '@nozbe/watermelondb';
 
 /**
@@ -10,6 +13,9 @@ import type { Database } from '@nozbe/watermelondb';
 class StorageService {
     private database: Database | null = null;
     public personRepository: PersonRepository | null = null;
+    public houseRepository: HouseRepository | null = null;
+    public inventoryItemRepository: InventoryItemRepository | null = null;
+    public choreRepository: ChoreRepository | null = null;
 
     /**
      * Initialize all storage systems
@@ -21,6 +27,9 @@ class StorageService {
 
             // Initialize repositories
             this.personRepository = new PersonRepository(this.database);
+            this.houseRepository = new HouseRepository(this.database);
+            this.inventoryItemRepository = new InventoryItemRepository(this.database);
+            this.choreRepository = new ChoreRepository(this.database);
 
             // Initialize image storage
             await imageStorage.initialize();
@@ -50,6 +59,27 @@ class StorageService {
             throw new Error('Storage not initialized. Call initialize() first.');
         }
         return this.personRepository;
+    }
+
+    getHouseRepository(): HouseRepository {
+        if (!this.houseRepository) {
+            throw new Error('Storage not initialized. Call initialize() first.');
+        }
+        return this.houseRepository;
+    }
+
+    getInventoryItemRepository(): InventoryItemRepository {
+        if (!this.inventoryItemRepository) {
+            throw new Error('Storage not initialized. Call initialize() first.');
+        }
+        return this.inventoryItemRepository;
+    }
+
+    getChoreRepository(): ChoreRepository {
+        if (!this.choreRepository) {
+            throw new Error('Storage not initialized. Call initialize() first.');
+        }
+        return this.choreRepository;
     }
 
     /**

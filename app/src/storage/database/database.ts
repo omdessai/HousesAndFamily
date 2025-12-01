@@ -5,10 +5,9 @@ import { migrations } from './migrations';
 
 import Person from '../models/Person';
 
-// Model imports will go here when we create actual models
-// import House from '../models/House';
-// import InventoryItem from '../models/InventoryItem';
-// import Chore from '../models/Chore';
+import House from '../models/House';
+import InventoryItem from '../models/InventoryItem';
+import Chore from '../models/Chore';
 
 class DatabaseService {
     private database: Database | null = null;
@@ -31,10 +30,9 @@ class DatabaseService {
             adapter,
             modelClasses: [
                 Person,
-                // Add model classes here when created
-                // House,
-                // InventoryItem,
-                // Chore,
+                House,
+                InventoryItem,
+                Chore,
             ],
         });
 
